@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOSTYPE - Remote Keyboard Controller v2.2</title>
+    <title>GHOSTYPE v3.0 - Universal Remote Keyboard</title>
     <style>
         * {
             margin: 0;
@@ -12,13 +12,13 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
         }
 
         .container {
@@ -28,8 +28,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 1000px;
-            max-height: 90vh;
-            overflow-y: auto;
         }
 
         .header {
@@ -50,25 +48,90 @@
         .subtitle {
             color: #666;
             font-size: 1.1em;
+            margin-bottom: 15px;
         }
 
         .version-badge {
             display: inline-block;
             background: #4caf50;
             color: white;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 15px;
             font-size: 0.8em;
             margin-left: 10px;
         }
 
-        .connection-info {
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 10px;
+        .device-info {
+            background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4caf50;
+        }
+
+        .device-info h3 {
+            color: #2e7d32;
+            margin-bottom: 10px;
+        }
+
+        .device-info p {
+            color: #388e3c;
+            line-height: 1.4;
+            margin: 5px 0;
+        }
+
+        .connection-selector {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
             margin-bottom: 20px;
+        }
+
+        .connection-selector h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .connection-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .connection-btn {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
             text-align: center;
+        }
+
+        .connection-btn:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .connection-btn.active {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .connection-btn .icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .connection-btn .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .connection-btn .desc {
             font-size: 0.9em;
+            color: #666;
         }
 
         .status-bar {
@@ -179,12 +242,6 @@
             gap: 10px;
         }
 
-        .protocol-control {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
         input[type="checkbox"] {
             width: 20px;
             height: 20px;
@@ -197,46 +254,6 @@
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
-        }
-
-        /* 탭 스타일 */
-        .tab-container {
-            margin-bottom: 30px;
-        }
-
-        .tab-buttons {
-            display: flex;
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            background: transparent;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            color: #666;
-        }
-
-        .tab-button.active {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
         }
 
         .input-section {
@@ -288,134 +305,6 @@
             background: linear-gradient(45deg, #45a049, #4caf50);
         }
 
-        /* 파일 업로드 스타일 */
-        .file-upload-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .file-drop-zone {
-            border: 3px dashed #ddd;
-            border-radius: 15px;
-            padding: 40px;
-            text-align: center;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            background: #fff;
-        }
-
-        .file-drop-zone:hover {
-            border-color: #667eea;
-            background: #f8f9ff;
-        }
-
-        .file-drop-zone.dragover {
-            border-color: #4caf50;
-            background: #f1f8e9;
-            transform: scale(1.02);
-        }
-
-        .file-drop-zone h4 {
-            color: #666;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
-
-        .file-drop-zone p {
-            color: #999;
-            font-size: 0.9em;
-        }
-
-        .supported-files {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-
-        .file-type-tag {
-            background: #e3f2fd;
-            color: #1976d2;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            font-weight: bold;
-        }
-
-        .selected-files {
-            margin-top: 20px;
-        }
-
-        .file-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .file-item {
-            background: white;
-            border: 2px solid #e9ecef;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .file-item:hover {
-            border-color: #667eea;
-        }
-
-        .file-item.error {
-            border-color: #e74c3c;
-            background: #fdf2f2;
-        }
-
-        .file-info {
-            flex: 1;
-        }
-
-        .file-name {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .file-size {
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .file-content-preview {
-            color: #777;
-            font-size: 0.8em;
-            font-family: 'Courier New', monospace;
-            margin-top: 5px;
-            max-height: 40px;
-            overflow: hidden;
-        }
-
-        .file-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .file-remove-btn {
-            background: linear-gradient(45deg, #e74c3c, #c0392b);
-            padding: 6px 12px;
-            font-size: 0.8em;
-            min-width: auto;
-        }
-
-        .file-remove-btn:hover:not(:disabled) {
-            background: linear-gradient(45deg, #c0392b, #e74c3c);
-        }
-
         .test-section {
             margin-bottom: 20px;
         }
@@ -435,14 +324,6 @@
 
         .test-btn:hover:not(:disabled) {
             background: linear-gradient(45deg, #ff6b00, #ff9800);
-        }
-
-        .special-test-btn {
-            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
-        }
-
-        .special-test-btn:hover:not(:disabled) {
-            background: linear-gradient(45deg, #7b1fa2, #9c27b0);
         }
 
         .countdown-modal {
@@ -599,20 +480,13 @@
             font-weight: bold;
         }
 
-        .speed-indicator {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #4caf50;
-            color: white;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: bold;
-            margin-left: 10px;
-        }
-
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
+            }
+            
+            .connection-buttons {
+                grid-template-columns: 1fr;
             }
             
             .test-grid {
@@ -622,32 +496,49 @@
             .speed-selector {
                 flex-direction: column;
             }
-
-            .tab-buttons {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">💻 GHOSTYPE <span class="version-badge">v2.2</span></div>
-            <div class="subtitle">PC2 → BLE → ESP32 → PC1 원격 키보드 (파일 전송 지원)</div>
+            <div class="logo">📱 GHOSTYPE <span class="version-badge">v3.0</span></div>
+            <div class="subtitle">Universal Remote Keyboard - BLE + WiFi</div>
         </div>
 
-        <div class="connection-info">
-            <strong>시스템 구성:</strong> PC2 (이 화면) → 블루투스 → ESP32 (USB) → PC1 (자동 입력)
+        <div class="device-info" id="deviceInfo" style="display: none;">
+            <h3>📡 ESP32 연결 정보</h3>
+            <p id="deviceDetails">연결을 선택하세요</p>
+        </div>
+
+        <div class="connection-selector">
+            <h3>🔗 연결 방식 선택</h3>
+            <div class="connection-buttons">
+                <div class="connection-btn" id="bleBtn" onclick="selectConnection('ble')">
+                    <div class="icon">🔵</div>
+                    <div class="title">BLE 연결</div>
+                    <div class="desc">Android, PC (Chrome/Edge)</div>
+                </div>
+                <div class="connection-btn" id="wifiBtn" onclick="selectConnection('wifi')">
+                    <div class="icon">📶</div>
+                    <div class="title">WiFi 연결</div>
+                    <div class="desc">iPhone, 모든 기기</div>
+                </div>
+            </div>
+            <p style="font-size: 0.9em; color: #666; text-align: center; margin-top: 10px;">
+                WiFi 모드: ESP32 핫스팟 "GHOSTYPE_XXXX"에 연결 후 이 페이지 접속
+            </p>
         </div>
 
         <div id="status" class="status-bar disconnected">
-            🔴 ESP32와 연결되지 않음
+            🔴 연결 방식을 선택하세요
         </div>
 
         <div class="controls">
-            <button id="connectBtn" onclick="connectDevice()">🔗 ESP32 연결</button>
+            <button id="connectBtn" onclick="connectDevice()" disabled>🔗 연결하기</button>
             <button id="disconnectBtn" onclick="disconnectDevice()" disabled>⚡ 연결 해제</button>
             <button onclick="clearLog()">🗑️ 로그 지우기</button>
+            <button onclick="clearText()">📄 텍스트 지우기</button>
         </div>
 
         <div class="settings-section">
@@ -656,10 +547,10 @@
             <div class="setting-row">
                 <label>⚡ 타이핑 속도:</label>
                 <div class="speed-selector">
-                    <button class="speed-btn" onclick="setSpeed(0)" data-speed="0">느림 (80-120ms)</button>
-                    <button class="speed-btn active" onclick="setSpeed(1)" data-speed="1">보통 (40-70ms)</button>
-                    <button class="speed-btn" onclick="setSpeed(2)" data-speed="2">빠름 (20-40ms)</button>
-                    <button class="speed-btn" onclick="setSpeed(3)" data-speed="3">즉시 (5ms)</button>
+                    <button class="speed-btn" onclick="setSpeed(0)" data-speed="0">느림</button>
+                    <button class="speed-btn active" onclick="setSpeed(1)" data-speed="1">보통</button>
+                    <button class="speed-btn" onclick="setSpeed(2)" data-speed="2">빠름</button>
+                    <button class="speed-btn" onclick="setSpeed(3)" data-speed="3">즉시</button>
                 </div>
             </div>
             
@@ -673,122 +564,50 @@
                 </div>
             </div>
             
-            <div class="setting-row">
-                <label>📦 패킷 프로토콜:</label>
-                <div class="protocol-control">
-                    <input type="checkbox" id="useProtocol" checked>
-                    <label for="useProtocol">END 마커 사용 (안정성 향상)</label>
-                </div>
-            </div>
-            
-            <div class="setting-row">
-                <label>📏 패킷 크기:</label>
-                <div class="protocol-control">
+            <div class="setting-row" id="packetSizeRow" style="display: none;">
+                <label>📦 패킷 크기:</label>
+                <div class="countdown-control">
                     <input type="number" id="packetSize" min="20" max="200" value="80">
-                    <span>bytes (기본: 80)</span>
+                    <span>bytes (권장: 80)</span>
                 </div>
             </div>
         </div>
 
-        <!-- 탭 컨테이너 -->
-        <div class="tab-container">
-            <div class="tab-buttons">
-                <button class="tab-button active" onclick="switchTab('text')">✏️ 텍스트 전송</button>
-                <button class="tab-button" onclick="switchTab('files')">📁 파일 전송</button>
+        <div class="input-section">
+            <h3>⌨️ PC1에 입력할 텍스트</h3>
+            <textarea 
+                id="textInput" 
+                placeholder="여기에 입력한 텍스트가 PC1에 자동으로 타이핑됩니다.
+영문, 숫자, 모든 특수문자(!@#$%^&*() 등) 지원
+여러 줄 입력도 가능합니다.
+
+Ctrl+Enter로 빠른 전송"
+                oninput="updateCharCount()"
+            ></textarea>
+            <div class="char-count" id="charCount">0 문자</div>
+            
+            <div class="transmission-status" id="transmissionStatus">
+                <strong>전송 중...</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div id="transmissionInfo"></div>
             </div>
+            
+            <button class="send-button" id="sendBtn" onclick="sendText()" disabled>
+                📤 PC1에 텍스트 전송
+            </button>
+        </div>
 
-            <!-- 텍스트 전송 탭 -->
-            <div id="textTab" class="tab-content active">
-                <div class="input-section">
-                    <h3>⌨️ PC1에 입력할 텍스트 <span id="speedIndicator" class="speed-indicator">보통 속도</span></h3>
-                    <textarea 
-                        id="textInput" 
-                        placeholder="여기에 입력한 텍스트가 PC1에 자동으로 타이핑됩니다.&#10;영문, 숫자, 모든 특수문자(!@#$%^&*() 등) 지원&#10;여러 줄 입력도 가능합니다.&#10;&#10;Ctrl+Enter로 빠른 전송"
-                        oninput="updateCharCount()"
-                    ></textarea>
-                    <div class="char-count" id="charCount">0 문자</div>
-                    
-                    <div class="transmission-status" id="transmissionStatus">
-                        <strong>전송 중...</strong>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <div id="transmissionInfo"></div>
-                    </div>
-                    
-                    <button class="send-button" id="sendBtn" onclick="sendText()" disabled>
-                        📤 PC1에 텍스트 전송
-                    </button>
-                </div>
-
-                <div class="test-section">
-                    <h3>🧪 빠른 테스트</h3>
-                    <div class="test-grid">
-                        <button class="test-btn" onclick="quickSend('Hello World!')" disabled>Hello World!</button>
-                        <button class="test-btn" onclick="quickSend('GHOSTYPE Test 123')" disabled>Test 123</button>
-                        <button class="test-btn" onclick="quickSend('user@example.com')" disabled>이메일 주소</button>
-                        <button class="test-btn" onclick="quickSend('https://www.example.com')" disabled>웹 주소</button>
-                        <button class="test-btn" onclick="quickSend('The quick brown fox jumps over the lazy dog')" disabled>긴 문장</button>
-                        <button class="test-btn" onclick="quickSend('password123!@#')" disabled>비밀번호 예시</button>
-                    </div>
-                </div>
-
-                <div class="test-section">
-                    <h3>🎨 특수문자 테스트</h3>
-                    <div class="test-grid">
-                        <button class="special-test-btn" onclick="quickSend('!@#$%^&*()')" disabled>!@#$%^&*()</button>
-                        <button class="special-test-btn" onclick="quickSend('-_=+[]{}\\|')" disabled>-_=+[]{}\\|</button>
-                        <button class="special-test-btn" onclick="quickSend(';:\\'\\',.<>?/')" disabled>;:'",.<>?/</button>
-                        <button class="special-test-btn" onclick="quickSend('~`')" disabled>~`</button>
-                        <button class="special-test-btn" onclick="quickSend('1234567890')" disabled>숫자</button>
-                        <button class="special-test-btn" onclick="quickSend('ABCabc')" disabled>대소문자</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 파일 전송 탭 -->
-            <div id="filesTab" class="tab-content">
-                <div class="file-upload-section">
-                    <h3>📁 파일 업로드 및 전송</h3>
-                    
-                    <!-- 파일 드롭 존 -->
-                    <div class="file-drop-zone" id="fileDropZone" onclick="document.getElementById('fileInput').click()">
-                        <h4>📂 파일을 선택하거나 여기에 끌어다 놓으세요</h4>
-                        <p>최대 10개 파일, 각 파일 최대 40,000자</p>
-                        <div class="supported-files">
-                            <span class="file-type-tag">.txt</span>
-                            <span class="file-type-tag">.js</span>
-                            <span class="file-type-tag">.html</span>
-                            <span class="file-type-tag">.css</span>
-                            <span class="file-type-tag">.json</span>
-                            <span class="file-type-tag">.csv</span>
-                        </div>
-                    </div>
-                    
-                    <input type="file" id="fileInput" multiple accept=".txt,.js,.html,.css,.json,.csv" style="display: none;" onchange="handleFileSelect(event)">
-                    
-                    <!-- 선택된 파일 목록 -->
-                    <div class="selected-files" id="selectedFiles" style="display: none;">
-                        <h4>📋 선택된 파일 목록</h4>
-                        <div class="file-list" id="fileList"></div>
-                        <div class="controls" style="margin-top: 15px;">
-                            <button onclick="clearAllFiles()" class="file-remove-btn">🗑️ 전체 지우기</button>
-                            <button onclick="addMoreFiles()" style="background: linear-gradient(45deg, #2196f3, #1976d2);">➕ 파일 추가</button>
-                        </div>
-                    </div>
-                    
-                    <div class="transmission-status" id="fileTransmissionStatus">
-                        <strong>파일 전송 중...</strong>
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="fileProgressFill"></div>
-                        </div>
-                        <div id="fileTransmissionInfo"></div>
-                    </div>
-                    
-                    <button class="send-button" id="sendFilesBtn" onclick="sendFiles()" disabled>
-                        📤 PC1에 파일 전송
-                    </button>
-                </div>
+        <div class="test-section">
+            <h3>🧪 빠른 테스트</h3>
+            <div class="test-grid">
+                <button class="test-btn" onclick="quickSend('Hello World!')" disabled>Hello World!</button>
+                <button class="test-btn" onclick="quickSend('GHOSTYPE Test 123')" disabled>Test 123</button>
+                <button class="test-btn" onclick="quickSend('user@example.com')" disabled>이메일 주소</button>
+                <button class="test-btn" onclick="quickSend('https://www.example.com')" disabled>웹 주소</button>
+                <button class="test-btn" onclick="quickSend('The quick brown fox jumps over the lazy dog')" disabled>긴 문장</button>
+                <button class="test-btn" onclick="quickSend('!@#$%^&*()')" disabled>특수문자</button>
             </div>
         </div>
 
@@ -802,104 +621,318 @@
         </div>
 
         <div class="log" id="log">
-            <div class="log-entry log-info">[시스템] Web Bluetooth 준비 완료 (v2.2 - 안전한 진행률 표시)</div>
+            <div class="log-entry log-info">[시스템] GHOSTYPE v3.0 준비 완료 - BLE/WiFi 통합 시스템</div>
         </div>
 
         <div class="info-box">
             <h4>📋 사용 방법</h4>
             <ul>
-                <li><strong>PC1:</strong> ESP32를 USB로 연결 (HID 키보드로 인식)</li>
-                <li><strong>PC1:</strong> 파일 수신기 HTML을 열어두기</li>
-                <li><strong>PC2:</strong> Chrome/Edge 브라우저에서 이 페이지 열기</li>
-                <li><strong>PC2:</strong> "ESP32 연결" 버튼 클릭 후 GHOSTYPE 디바이스 선택</li>
-                <li><strong>텍스트:</strong> 일반 텍스트 입력 및 전송</li>
-                <li><strong>파일:</strong> 개발 파일들을 업로드해서 한 번에 전송</li>
-                <li><strong>설정:</strong> 타이핑 속도 선택 (느림/보통/빠름/즉시)</li>
+                <li><strong>BLE 연결:</strong> Android/PC에서 블루투스 검색 후 GHOSTYPE 선택</li>
+                <li><strong>WiFi 연결:</strong> WiFi에서 "GHOSTYPE_XXXX" 연결 (비밀번호: 12345678)</li>
+                <li><strong>PC1 준비:</strong> 메모장이나 텍스트 에디터 열어두기</li>
+                <li><strong>텍스트 입력:</strong> 위 텍스트 영역에 전송할 내용 입력</li>
+                <li><strong>전송:</strong> "PC1에 텍스트 전송" 버튼 클릭</li>
                 <li>모든 영문, 숫자, 특수문자 지원 (US 키보드 레이아웃)</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // BLE 설정
-        const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-        const RX_CHAR_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
-        const TX_CHAR_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
-
-        let device = null;
-        let server = null;
-        let service = null;
-        let rxCharacteristic = null;
-        let txCharacteristic = null;
+        // 연결 방식 및 상태 변수
+        let selectedConnectionType = null;
         let isConnected = false;
         let countdownTimer = null;
-        let currentTypingSpeed = 1; // 0=느림, 1=보통(기본), 2=빠름, 3=즉시
+        let currentTypingSpeed = 1;
         let isTransmitting = false;
-        let currentTab = 'text';
 
-        // 파일 관련 변수
-        let selectedFiles = [];
-        const MAX_FILES = 10;
-        const MAX_FILE_SIZE = 40000; // 40,000자
-        const SUPPORTED_EXTENSIONS = ['.txt', '.js', '.html', '.css', '.json', '.csv'];
+        // BLE 관련 변수
+        const BLE_SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+        const BLE_RX_CHAR_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+        const BLE_TX_CHAR_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+        let bleDevice = null;
+        let bleServer = null;
+        let bleService = null;
+        let bleRxCharacteristic = null;
+        let bleTxCharacteristic = null;
 
-        // 로그 추가
-        function addLog(message, type = 'info') {
-            const log = document.getElementById('log');
-            const entry = document.createElement('div');
-            const time = new Date().toLocaleTimeString();
-            entry.className = `log-entry log-${type}`;
-            entry.textContent = `[${time}] ${message}`;
-            log.appendChild(entry);
-            log.scrollTop = log.scrollHeight;
-            
-            // 로그가 너무 많으면 오래된 것 제거
-            const entries = log.getElementsByClassName('log-entry');
-            if (entries.length > 100) {
-                entries[0].remove();
+        // WiFi 관련 변수 (현재 페이지가 WiFi 연결인 경우)
+        let isWiFiConnection = false;
+        let ws = null;
+
+        // 페이지 로드시 초기화
+        window.onload = function() {
+            // WiFi 연결인지 확인 (현재 URL이 192.168.4.1이면 WiFi)
+            if (window.location.hostname === '192.168.4.1' || 
+                window.location.hostname.includes('ghostype') ||
+                window.location.hostname.includes('192.168.4')) {
+                isWiFiConnection = true;
+                selectConnection('wifi');
+                showDeviceInfo('WiFi 핫스팟을 통해 연결됨', 'http://' + window.location.hostname);
+                // WiFi는 이미 연결된 상태이므로 WebSocket만 연결
+                setTimeout(connectWebSocket, 1000);
+            } else {
+                // BLE 모드로 시작
+                selectConnection('ble');
             }
-        }
+            
+            updateCharCount();
+        };
 
-        // 탭 전환 함수
-        function switchTab(tabName) {
-            // 탭 버튼 상태 변경
-            document.querySelectorAll('.tab-button').forEach(btn => {
+        // 연결 방식 선택
+        function selectConnection(type) {
+            selectedConnectionType = type;
+            
+            // 버튼 상태 업데이트
+            document.querySelectorAll('.connection-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
-            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
-
-            // 탭 내용 표시/숨김
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
             
-            if (tabName === 'text') {
-                document.getElementById('textTab').classList.add('active');
-                addLog('📝 텍스트 전송 탭 활성화', 'info');
-            } else if (tabName === 'files') {
-                document.getElementById('filesTab').classList.add('active');
-                addLog('📁 파일 전송 탭 활성화', 'info');
+            if (type === 'ble') {
+                document.getElementById('bleBtn').classList.add('active');
+                document.getElementById('packetSizeRow').style.display = 'flex';
+                document.getElementById('connectBtn').disabled = false;
+                updateStatus('🔵 BLE 연결 준비됨 - 연결 버튼을 클릭하세요', 'disconnected');
+            } else if (type === 'wifi') {
+                document.getElementById('wifiBtn').classList.add('active');
+                document.getElementById('packetSizeRow').style.display = 'none';
+                
+                if (isWiFiConnection) {
+                    // 이미 WiFi로 접속한 상태
+                    document.getElementById('connectBtn').disabled = true;
+                    updateStatus('📶 WiFi 연결됨 - WebSocket 연결 중...', 'connecting');
+                } else {
+                    document.getElementById('connectBtn').disabled = false;
+                    updateStatus('📶 WiFi 안내: ESP32 핫스팟 "GHOSTYPE_XXXX"에 연결 후 192.168.4.1 접속', 'disconnected');
+                }
+            }
+        }
+
+        // 기기 정보 표시
+        function showDeviceInfo(name, details) {
+            document.getElementById('deviceInfo').style.display = 'block';
+            document.getElementById('deviceDetails').innerHTML = `
+                <strong>이름:</strong> ${name}<br>
+                <strong>접속:</strong> ${details}
+            `;
+        }
+
+        // 연결 함수
+        async function connectDevice() {
+            if (selectedConnectionType === 'ble') {
+                await connectBLE();
+            } else if (selectedConnectionType === 'wifi' && !isWiFiConnection) {
+                alert('WiFi 연결: ESP32의 "GHOSTYPE_XXXX" 핫스팟에 연결 후 192.168.4.1로 접속하세요');
+            }
+        }
+
+        // BLE 연결
+        async function connectBLE() {
+            if (!navigator.bluetooth) {
+                addLog('이 브라우저는 Web Bluetooth를 지원하지 않습니다', 'error');
+                addLog('Chrome 또는 Edge 브라우저를 사용하세요', 'error');
+                return;
+            }
+
+            try {
+                addLog('GHOSTYPE ESP32 검색 중...', 'info');
+                updateStatus('🔍 ESP32 검색 중...', 'connecting');
+
+                bleDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: 'GHOSTYPE' }],
+                    optionalServices: [BLE_SERVICE_UUID]
+                });
+
+                addLog(`기기 발견: ${bleDevice.name}`, 'success');
+                bleDevice.addEventListener('gattserverdisconnected', onBLEDisconnected);
+
+                addLog('GATT 서버 연결 중...', 'info');
+                bleServer = await bleDevice.gatt.connect();
+
+                addLog('Nordic UART Service 검색 중...', 'info');
+                bleService = await bleServer.getPrimaryService(BLE_SERVICE_UUID);
+
+                bleRxCharacteristic = await bleService.getCharacteristic(BLE_RX_CHAR_UUID);
+                bleTxCharacteristic = await bleService.getCharacteristic(BLE_TX_CHAR_UUID);
+
+                await bleTxCharacteristic.startNotifications();
+                bleTxCharacteristic.addEventListener('characteristicvaluechanged', onBLEDataReceived);
+
+                addLog(`✅ ${bleDevice.name} 연결 완료!`, 'success');
+                updateStatus(`🟢 ${bleDevice.name} 연결됨`, 'connected');
+                showDeviceInfo(bleDevice.name, 'BLE 연결');
+                updateUI(true);
+
+                // 초기 속도 설정 전송
+                setTimeout(() => {
+                    sendDataToBLE(`SPEED:${currentTypingSpeed}`);
+                    addLog('초기 설정 전송 완료', 'info');
+                }, 500);
+
+            } catch (error) {
+                addLog(`BLE 연결 실패: ${error.message}`, 'error');
+                updateStatus('🔴 BLE 연결 실패', 'disconnected');
+                console.error('BLE connection error:', error);
+            }
+        }
+
+        // WiFi WebSocket 연결
+        function connectWebSocket() {
+            if (!isWiFiConnection) return;
+            
+            const wsUrl = `ws://${window.location.hostname}:81`;
+            addLog('WebSocket 연결 시도: ' + wsUrl, 'info');
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                isConnected = true;
+                updateStatus('🟢 WiFi WebSocket 연결됨!', 'connected');
+                showDeviceInfo('GHOSTYPE WiFi', window.location.href);
+                updateUI(true);
+                addLog('WebSocket 연결 성공', 'success');
+            };
+            
+            ws.onclose = function() {
+                isConnected = false;
+                updateStatus('🔴 WebSocket 연결 끊어짐', 'disconnected');
+                updateUI(false);
+                addLog('WebSocket 연결 종료', 'error');
+            };
+            
+            ws.onerror = function(error) {
+                addLog('WebSocket 오류: ' + error, 'error');
+                updateStatus('❌ WebSocket 연결 오류', 'disconnected');
+            };
+            
+            ws.onmessage = function(event) {
+                addLog('서버 응답: ' + event.data, 'info');
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'response') {
+                        addLog('✅ ' + data.data, 'success');
+                    }
+                } catch (e) {
+                    // JSON이 아닌 일반 메시지
+                }
+            };
+        }
+
+        // 연결 해제
+        async function disconnectDevice() {
+            if (selectedConnectionType === 'ble' && bleDevice && bleDevice.gatt.connected) {
+                await bleDevice.gatt.disconnect();
+                addLog('BLE 연결 해제 완료', 'info');
+            } else if (selectedConnectionType === 'wifi' && ws) {
+                ws.close();
+                addLog('WebSocket 연결 해제 완료', 'info');
+            }
+        }
+
+        // BLE 데이터 수신
+        function onBLEDataReceived(event) {
+            const value = new TextDecoder().decode(event.target.value);
+            addLog(`ESP32 응답: "${value}"`, 'info');
+        }
+
+        // BLE 연결 해제 이벤트
+        function onBLEDisconnected() {
+            addLog('ESP32 연결이 해제되었습니다', 'error');
+            updateStatus('🔴 ESP32와 연결되지 않음', 'disconnected');
+            updateUI(false);
+            
+            bleDevice = null;
+            bleServer = null;
+            bleService = null;
+            bleRxCharacteristic = null;
+            bleTxCharacteristic = null;
+        }
+
+        // BLE로 데이터 전송
+        async function sendDataToBLE(data) {
+            if (!bleRxCharacteristic || !isConnected) {
+                addLog('BLE가 연결되지 않음', 'error');
+                return false;
+            }
+
+            try {
+                const encoder = new TextEncoder();
+                const packetSize = parseInt(document.getElementById('packetSize').value) || 80;
+                
+                const encodedData = encoder.encode(data);
+                const totalChunks = Math.ceil(encodedData.length / packetSize);
+                
+                addLog(`BLE 전송: ${data.length} chars → ${encodedData.length} bytes, ${totalChunks} 패킷`, 'info');
+                
+                for (let i = 0; i < encodedData.length; i += packetSize) {
+                    const chunk = encodedData.slice(i, Math.min(i + packetSize, encodedData.length));
+                    const chunkNum = Math.floor(i / packetSize) + 1;
+                    
+                    await bleRxCharacteristic.writeValue(chunk);
+                    
+                    const progress = Math.round((i + chunk.length) / encodedData.length * 100);
+                    showTransmissionStatus(true, progress, 
+                        `패킷 ${chunkNum}/${totalChunks} 전송 중...`);
+                    
+                    if (i + packetSize < encodedData.length) {
+                        await new Promise(resolve => setTimeout(resolve, 30));
+                    }
+                }
+                
+                addLog(`BLE 전송 완료: ${totalChunks}개 패킷`, 'success');
+                showTransmissionStatus(false);
+                return true;
+                
+            } catch (error) {
+                addLog(`BLE 전송 실패: ${error.message}`, 'error');
+                showTransmissionStatus(false);
+                return false;
+            }
+        }
+
+        // WiFi로 데이터 전송
+        function sendDataToWiFi(data) {
+            if (!ws || !isConnected) {
+                addLog('WiFi WebSocket이 연결되지 않음', 'error');
+                return false;
+            }
+
+            try {
+                const message = {
+                    type: 'text',
+                    data: data,
+                    timestamp: Date.now()
+                };
+                
+                ws.send(JSON.stringify(message));
+                addLog(`WiFi 전송: ${data.length} 문자`, 'success');
+                return true;
+                
+            } catch (error) {
+                addLog(`WiFi 전송 실패: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        // 통합 데이터 전송
+        async function sendData(data) {
+            if (!isConnected) {
+                addLog('연결되지 않음', 'error');
+                return false;
+            }
+
+            if (selectedConnectionType === 'ble') {
+                return await sendDataToBLE(data);
+            } else if (selectedConnectionType === 'wifi') {
+                return sendDataToWiFi(data);
             }
             
-            currentTab = tabName;
-        }
-
-        // 로그 지우기
-        function clearLog() {
-            document.getElementById('log').innerHTML = '<div class="log-entry log-info">[시스템] 로그 초기화됨</div>';
-        }
-
-        // 문자 수 업데이트
-        function updateCharCount() {
-            const text = document.getElementById('textInput').value;
-            document.getElementById('charCount').textContent = `${text.length} 문자`;
+            return false;
         }
 
         // 타이핑 속도 설정
         function setSpeed(speed) {
             currentTypingSpeed = speed;
             
-            // 버튼 스타일 업데이트
             document.querySelectorAll('.speed-btn').forEach(btn => {
                 if (parseInt(btn.dataset.speed) === speed) {
                     btn.classList.add('active');
@@ -908,15 +941,11 @@
                 }
             });
             
-            // 속도 표시 업데이트
             const speedNames = ['느림', '보통', '빠름', '즉시'];
-            const indicator = document.getElementById('speedIndicator');
-            indicator.textContent = speedNames[speed] + ' 속도';
+            addLog(`타이핑 속도 변경: ${speedNames[speed]}`, 'info');
             
-            // ESP32에 속도 설정 전송
             if (isConnected) {
                 sendData(`SPEED:${speed}`);
-                addLog(`타이핑 속도 변경: ${speedNames[speed]}`, 'info');
             }
         }
 
@@ -930,25 +959,19 @@
         // UI 업데이트
         function updateUI(connected) {
             isConnected = connected;
-            document.getElementById('connectBtn').disabled = connected;
+            document.getElementById('connectBtn').disabled = connected || isWiFiConnection;
             document.getElementById('disconnectBtn').disabled = !connected;
             document.getElementById('sendBtn').disabled = !connected || isTransmitting;
-            document.getElementById('sendFilesBtn').disabled = !connected || isTransmitting || selectedFiles.length === 0;
             
-            // 모든 테스트 버튼 활성화/비활성화
-            const testButtons = document.querySelectorAll('.test-btn, .special-test-btn');
+            const testButtons = document.querySelectorAll('.test-btn');
             testButtons.forEach(btn => btn.disabled = !connected || isTransmitting);
         }
 
         // 전송 상태 표시
-        function showTransmissionStatus(show, progress = 0, info = '', isFile = false) {
-            const statusId = isFile ? 'fileTransmissionStatus' : 'transmissionStatus';
-            const fillId = isFile ? 'fileProgressFill' : 'progressFill';
-            const infoId = isFile ? 'fileTransmissionInfo' : 'transmissionInfo';
-            
-            const status = document.getElementById(statusId);
-            const fill = document.getElementById(fillId);
-            const infoEl = document.getElementById(infoId);
+        function showTransmissionStatus(show, progress = 0, info = '') {
+            const status = document.getElementById('transmissionStatus');
+            const fill = document.getElementById('progressFill');
+            const infoEl = document.getElementById('transmissionInfo');
             
             if (show) {
                 status.classList.add('active');
@@ -959,369 +982,7 @@
             }
         }
 
-        // 파일 크기 포맷 함수
-        function formatFileSize(bytes) {
-            if (bytes < 1024) return bytes + ' bytes';
-            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
-        }
-
-        // 파일 선택 처리
-        function handleFileSelect(event) {
-            const files = Array.from(event.target.files);
-            processSelectedFiles(files);
-        }
-
-        // 드래그 앤 드롭 설정
-        function setupDragAndDrop() {
-            const dropZone = document.getElementById('fileDropZone');
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                dropZone.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                dropZone.addEventListener(eventName, unhighlight, false);
-            });
-            
-            dropZone.addEventListener('drop', handleDrop, false);
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            function highlight() {
-                dropZone.classList.add('dragover');
-            }
-            
-            function unhighlight() {
-                dropZone.classList.remove('dragover');
-            }
-            
-            function handleDrop(e) {
-                const dt = e.dataTransfer;
-                const files = Array.from(dt.files);
-                processSelectedFiles(files);
-            }
-        }
-
-        // 선택된 파일 처리
-        function processSelectedFiles(files) {
-            const newFiles = [];
-            
-            for (const file of files) {
-                // 파일 개수 제한 확인
-                if (selectedFiles.length + newFiles.length >= MAX_FILES) {
-                    addLog(`⚠️ 최대 ${MAX_FILES}개 파일만 선택할 수 있습니다`, 'warning');
-                    break;
-                }
-                
-                // 확장자 확인
-                const extension = '.' + file.name.split('.').pop().toLowerCase();
-                if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-                    addLog(`⚠️ 지원하지 않는 파일 형식: ${file.name}`, 'warning');
-                    continue;
-                }
-                
-                // 파일 크기 확인 (대략적으로 바이트 수로 체크)
-                if (file.size > MAX_FILE_SIZE) {
-                    addLog(`⚠️ 파일이 너무 큽니다: ${file.name} (${formatFileSize(file.size)})`, 'warning');
-                    continue;
-                }
-                
-                newFiles.push({
-                    id: Date.now() + Math.random(),
-                    file: file,
-                    name: file.name.split('.').slice(0, -1).join('.'),
-                    extension: extension,
-                    fullName: file.name,
-                    size: file.size,
-                    content: '', // 나중에 읽음
-                    isValid: true,
-                    error: null
-                });
-            }
-            
-            // 파일 내용 읽기
-            Promise.all(newFiles.map(fileObj => readFileContent(fileObj)))
-                .then(() => {
-                    selectedFiles.push(...newFiles.filter(f => f.isValid));
-                    updateFileList();
-                    addLog(`📁 ${newFiles.filter(f => f.isValid).length}개 파일 선택됨`, 'success');
-                });
-        }
-
-        // 파일 내용 읽기
-        function readFileContent(fileObj) {
-            return new Promise((resolve) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const content = e.target.result;
-                    
-                    // 내용 길이 확인
-                    if (content.length > MAX_FILE_SIZE) {
-                        fileObj.isValid = false;
-                        fileObj.error = `파일 내용이 너무 깁니다 (${content.length}자 > ${MAX_FILE_SIZE}자)`;
-                        addLog(`⚠️ ${fileObj.fullName}: 내용이 너무 깁니다`, 'warning');
-                    } else {
-                        fileObj.content = content;
-                        fileObj.actualSize = content.length;
-                    }
-                    
-                    resolve();
-                };
-                
-                reader.onerror = function() {
-                    fileObj.isValid = false;
-                    fileObj.error = '파일 읽기 오류';
-                    addLog(`❌ ${fileObj.fullName}: 읽기 실패`, 'error');
-                    resolve();
-                };
-                
-                reader.readAsText(fileObj.file, 'UTF-8');
-            });
-        }
-
-        // 파일 목록 업데이트
-        function updateFileList() {
-            const fileList = document.getElementById('fileList');
-            const selectedFilesSection = document.getElementById('selectedFiles');
-            const sendFilesBtn = document.getElementById('sendFilesBtn');
-            
-            if (selectedFiles.length === 0) {
-                selectedFilesSection.style.display = 'none';
-                sendFilesBtn.disabled = true;
-                return;
-            }
-            
-            selectedFilesSection.style.display = 'block';
-            sendFilesBtn.disabled = !isConnected || isTransmitting;
-            
-            fileList.innerHTML = selectedFiles.map(fileObj => `
-                <div class="file-item ${fileObj.isValid ? '' : 'error'}">
-                    <div class="file-info">
-                        <div class="file-name">📄 ${fileObj.fullName}</div>
-                        <div class="file-size">${fileObj.isValid ? formatFileSize(fileObj.actualSize || fileObj.size) : '오류'}</div>
-                        ${fileObj.error ? `<div style="color: #e74c3c; font-size: 0.8em;">${fileObj.error}</div>` : ''}
-                        ${fileObj.isValid && fileObj.content ? `<div class="file-content-preview">${fileObj.content.substring(0, 100)}${fileObj.content.length > 100 ? '...' : ''}</div>` : ''}
-                    </div>
-                    <div class="file-actions">
-                        <button class="file-remove-btn" onclick="removeFile('${fileObj.id}')">🗑️ 제거</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // 파일 제거
-        function removeFile(fileId) {
-            selectedFiles = selectedFiles.filter(f => f.id != fileId);
-            updateFileList();
-            addLog('🗑️ 파일이 제거되었습니다', 'info');
-        }
-
-        // 전체 파일 지우기
-        function clearAllFiles() {
-            if (selectedFiles.length > 0 && confirm('모든 파일을 제거하시겠습니까?')) {
-                selectedFiles = [];
-                updateFileList();
-                document.getElementById('fileInput').value = '';
-                addLog('🗑️ 모든 파일이 제거되었습니다', 'info');
-            }
-        }
-
-        // 파일 추가
-        function addMoreFiles() {
-            document.getElementById('fileInput').click();
-        }
-
-        // BLE 연결 (기존 코드와 동일)
-        async function connectDevice() {
-            try {
-                addLog('ESP32 검색 시작...', 'info');
-                updateStatus('🔍 ESP32 검색 중...', 'connecting');
-
-                device = await navigator.bluetooth.requestDevice({
-                    filters: [
-                        { namePrefix: 'GHOSTYPE' }
-                    ],
-                    optionalServices: [SERVICE_UUID]
-                });
-
-                addLog(`디바이스 발견: ${device.name}`, 'success');
-                device.addEventListener('gattserverdisconnected', onDisconnected);
-
-                addLog('GATT 서버 연결 중...', 'info');
-                server = await device.gatt.connect();
-
-                addLog('Nordic UART Service 검색 중...', 'info');
-                service = await server.getPrimaryService(SERVICE_UUID);
-
-                rxCharacteristic = await service.getCharacteristic(RX_CHAR_UUID);
-                txCharacteristic = await service.getCharacteristic(TX_CHAR_UUID);
-
-                await txCharacteristic.startNotifications();
-                txCharacteristic.addEventListener('characteristicvaluechanged', onDataReceived);
-
-                addLog(`✅ ${device.name} 연결 완료!`, 'success');
-                updateStatus(`🟢 ${device.name} 연결됨`, 'connected');
-                updateUI(true);
-
-                setTimeout(() => {
-                    sendData(`SPEED:${currentTypingSpeed}`);
-                    addLog('초기 설정 전송 완료', 'info');
-                }, 500);
-
-            } catch (error) {
-                addLog(`❌ 연결 실패: ${error.message}`, 'error');
-                updateStatus('🔴 연결 실패', 'disconnected');
-                console.error('Connection error:', error);
-            }
-        }
-
-        // 연결 해제
-        async function disconnectDevice() {
-            if (device && device.gatt.connected) {
-                await device.gatt.disconnect();
-                addLog('연결 해제 완료', 'info');
-            }
-        }
-
-        // 데이터 수신
-        function onDataReceived(event) {
-            const value = new TextDecoder().decode(event.target.value);
-            addLog(`ESP32 응답: "${value}"`, 'info');
-        }
-
-        // 연결 해제 이벤트
-        function onDisconnected() {
-            addLog('ESP32 연결이 해제되었습니다', 'error');
-            updateStatus('🔴 ESP32와 연결되지 않음', 'disconnected');
-            updateUI(false);
-            
-            device = null;
-            server = null;
-            service = null;
-            rxCharacteristic = null;
-            txCharacteristic = null;
-        }
-
-        // 개선된 데이터 전송 함수 (기존과 동일)
-        async function sendData(text) {
-            if (!rxCharacteristic || !isConnected) {
-                addLog('❌ ESP32와 연결되지 않음', 'error');
-                return false;
-            }
-
-            try {
-                const encoder = new TextEncoder();
-                const useProtocol = document.getElementById('useProtocol').checked;
-                const packetSize = parseInt(document.getElementById('packetSize').value) || 80;
-                
-                let dataToSend = text;
-                if (useProtocol && !text.startsWith('SPEED:')) {
-                    dataToSend = text + '<<END>>';
-                }
-                
-                const data = encoder.encode(dataToSend);
-                const totalChunks = Math.ceil(data.length / packetSize);
-                
-                addLog(`전송 시작: ${text.length}자, ${data.length}bytes, ${totalChunks}패킷`, 'info');
-                
-                for (let i = 0; i < data.length; i += packetSize) {
-                    const chunk = data.slice(i, Math.min(i + packetSize, data.length));
-                    const chunkNum = Math.floor(i / packetSize) + 1;
-                    
-                    await rxCharacteristic.writeValue(chunk);
-                    
-                    const progress = Math.round((i + chunk.length) / data.length * 100);
-                    showTransmissionStatus(true, progress, 
-                        `패킷 ${chunkNum}/${totalChunks} 전송 중...`, false);
-                    
-                    if (i + packetSize < data.length) {
-                        await new Promise(resolve => setTimeout(resolve, 30));
-                    }
-                }
-                
-                addLog(`✅ 전송 완료: ${totalChunks}개 패킷`, 'success');
-                showTransmissionStatus(false);
-                return true;
-                
-            } catch (error) {
-                addLog(`❌ 전송 실패: ${error.message}`, 'error');
-                showTransmissionStatus(false);
-                console.error('Send error:', error);
-                return false;
-            }
-        }
-
-        // 파일 전송 함수
-        async function sendFiles() {
-            if (selectedFiles.length === 0) {
-                addLog('⚠️ 전송할 파일이 없습니다', 'warning');
-                return;
-            }
-
-            const validFiles = selectedFiles.filter(f => f.isValid);
-            if (validFiles.length === 0) {
-                addLog('⚠️ 유효한 파일이 없습니다', 'warning');
-                return;
-            }
-
-            if (isTransmitting) {
-                addLog('⚠️ 이미 전송 중입니다', 'warning');
-                return;
-            }
-
-            const useCountdown = document.getElementById('useCountdown').checked;
-            const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
-
-            try {
-                isTransmitting = true;
-                updateUI(true);
-
-                // 파일 데이터 구성
-                let filesData = '<<FILES_START>>\n';
-                validFiles.forEach(fileObj => {
-                    filesData += `FILE:${fileObj.fullName}:${fileObj.content}\n`;
-                });
-                filesData += '<<FILES_END>>';
-
-                addLog(`📁 ${validFiles.length}개 파일 전송 준비 완료`, 'info');
-
-                if (useCountdown) {
-                    addLog(`⏰ ${countdownSeconds}초 카운트다운 시작`, 'info');
-                    await showCountdown(filesData.substring(0, 200) + '...', countdownSeconds);
-                }
-
-                const startTime = Date.now();
-                showTransmissionStatus(true, 0, '파일 데이터 전송 중...', true);
-
-                const success = await sendData(filesData);
-
-                if (success) {
-                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                    addLog(`✅ 파일 전송 완료: ${validFiles.length}개 파일, ${duration}초 소요`, 'success');
-                    showTransmissionStatus(false, 0, '', true);
-                }
-
-            } catch (error) {
-                if (error !== 'cancelled') {
-                    addLog(`❌ 파일 전송 오류: ${error}`, 'error');
-                }
-                showTransmissionStatus(false, 0, '', true);
-            } finally {
-                isTransmitting = false;
-                updateUI(true);
-            }
-        }
-
-        // 카운트다운 표시 (기존과 동일)
+        // 카운트다운 표시
         function showCountdown(text, seconds) {
             return new Promise((resolve, reject) => {
                 const modal = document.getElementById('countdownModal');
@@ -1363,13 +1024,13 @@
             if (window.cancelCountdownHandler) {
                 window.cancelCountdownHandler();
             }
-            addLog('⏸️ 전송 취소됨', 'info');
+            addLog('전송 취소됨', 'info');
         }
 
-        // 텍스트 전송 (기존과 동일)
+        // 텍스트 전송
         async function sendText() {
             if (isTransmitting) {
-                addLog('⚠️ 이미 전송 중입니다', 'warning');
+                addLog('이미 전송 중입니다', 'warning');
                 return;
             }
             
@@ -1377,87 +1038,7 @@
             let text = textarea.value;
             
             if (!text) {
-                addLog('⚠️ 텍스트를 입력하세요', 'error');
-                return;
-            }
-            
-            const useCountdown = document.getElementById('useCountdown').checked;
-            const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
-            
-            try {
-                isTransmitting = true;
-                updateUI(true);
-                
-                if (text.length > 10000) {
-                    addLog(`⚠️ 매우 긴 텍스트 감지: ${text.length}자`, 'warning');
-                    addLog('자동 분할 전송 모드 활성화', 'info');
-                    
-                    const chunkSize = 8000;
-                    const totalChunks = Math.ceil(text.length / chunkSize);
-                    
-                    for (let i = 0; i < text.length; i += chunkSize) {
-                        const chunk = text.slice(i, Math.min(i + chunkSize, text.length));
-                        const chunkNum = Math.floor(i / chunkSize) + 1;
-                        
-                        addLog(`청크 ${chunkNum}/${totalChunks} 전송 중 (${chunk.length}자)`, 'info');
-                        
-                        if (useCountdown && chunkNum === 1) {
-                            await showCountdown(chunk.substring(0, 100) + '...', countdownSeconds);
-                        }
-                        
-                        const startTime = Date.now();
-                        const success = await sendData(chunk);
-                        
-                        if (success) {
-                            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                            addLog(`✅ 청크 ${chunkNum} 완료: ${duration}초`, 'success');
-                            
-                            if (chunkNum < totalChunks) {
-                                addLog('ESP32 처리 대기 중... (2초)', 'info');
-                                await new Promise(resolve => setTimeout(resolve, 2000));
-                            }
-                        } else {
-                            addLog(`❌ 청크 ${chunkNum} 전송 실패`, 'error');
-                            break;
-                        }
-                    }
-                    
-                    addLog(`✅ 전체 전송 완료: ${text.length}자`, 'success');
-                    
-                } else {
-                    if (useCountdown) {
-                        addLog(`⏰ ${countdownSeconds}초 카운트다운 시작`, 'info');
-                        await showCountdown(text, countdownSeconds);
-                    }
-                    
-                    const startTime = Date.now();
-                    const success = await sendData(text);
-                    
-                    if (success) {
-                        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                        addLog(`✅ PC1에 입력 완료: ${text.length}자, ${duration}초 소요`, 'success');
-                    }
-                }
-                
-            } catch (error) {
-                if (error !== 'cancelled') {
-                    addLog(`❌ 오류: ${error}`, 'error');
-                }
-            } finally {
-                isTransmitting = false;
-                updateUI(true);
-            }
-        }
-
-        // 빠른 전송 (기존과 동일)
-        async function quickSend(text) {
-            if (!isConnected) {
-                addLog('❌ 먼저 ESP32와 연결하세요', 'error');
-                return;
-            }
-            
-            if (isTransmitting) {
-                addLog('⚠️ 이미 전송 중입니다', 'warning');
+                addLog('텍스트를 입력하세요', 'error');
                 return;
             }
             
@@ -1469,17 +1050,21 @@
                 updateUI(true);
                 
                 if (useCountdown) {
-                    addLog(`빠른 테스트: "${text}" (${countdownSeconds}초 후)`, 'info');
+                    addLog(`${countdownSeconds}초 카운트다운 시작`, 'info');
                     await showCountdown(text, countdownSeconds);
-                } else {
-                    addLog(`빠른 테스트: "${text}" (즉시)`, 'info');
                 }
                 
-                await sendData(text);
+                const startTime = Date.now();
+                const success = await sendData(text);
+                
+                if (success) {
+                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                    addLog(`✅ PC1에 입력 완료: ${text.length}자, ${duration}초 소요`, 'success');
+                }
                 
             } catch (error) {
                 if (error !== 'cancelled') {
-                    console.error(error);
+                    addLog(`오류: ${error}`, 'error');
                 }
             } finally {
                 isTransmitting = false;
@@ -1487,35 +1072,79 @@
             }
         }
 
-        // Enter 키로 전송
+        // 빠른 전송
+        async function quickSend(text) {
+            if (!isConnected) {
+                addLog('먼저 ESP32와 연결하세요', 'error');
+                return;
+            }
+            
+            if (isTransmitting) {
+                addLog('이미 전송 중입니다', 'warning');
+                return;
+            }
+            
+            try {
+                isTransmitting = true;
+                updateUI(true);
+                
+                addLog(`빠른 테스트: "${text}"`, 'info');
+                await sendData(text);
+                
+            } catch (error) {
+                console.error(error);
+            } finally {
+                isTransmitting = false;
+                updateUI(true);
+            }
+        }
+
+        // 문자 수 업데이트
+        function updateCharCount() {
+            const text = document.getElementById('textInput').value;
+            document.getElementById('charCount').textContent = `${text.length} 문자`;
+        }
+
+        // 로그 추가
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            const time = new Date().toLocaleTimeString();
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            const entries = log.getElementsByClassName('log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+
+        // 로그 지우기
+        function clearLog() {
+            document.getElementById('log').innerHTML = 
+                '<div class="log-entry log-info">[시스템] 로그 지워짐 - GHOSTYPE v3.0 BLE/WiFi 통합</div>';
+        }
+
+        // 텍스트 지우기
+        function clearText() {
+            document.getElementById('textInput').value = '';
+            updateCharCount();
+        }
+
+        // 키보드 단축키
         document.getElementById('textInput').addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 sendText();
             }
         });
 
-        // ESC 키로 카운트다운 취소
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 cancelCountdown();
             }
         });
-
-        // Web Bluetooth 지원 확인
-        if (!navigator.bluetooth) {
-            addLog('❌ 이 브라우저는 Web Bluetooth를 지원하지 않습니다', 'error');
-            addLog('Chrome 또는 Edge 브라우저를 사용하세요', 'error');
-            updateStatus('🚫 Web Bluetooth 미지원', 'disconnected');
-            document.getElementById('connectBtn').disabled = true;
-        } else {
-            addLog('✅ Web Bluetooth 지원 확인', 'success');
-            addLog('ESP32 연결 버튼을 클릭하세요', 'info');
-        }
-
-        // 초기 상태
-        updateUI(false);
-        updateCharCount();
-        setupDragAndDrop();
     </script>
 </body>
 </html>
