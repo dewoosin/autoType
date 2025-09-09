@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GHOSTYPE Sender v3.1 (Improved Base64)</title>
+    <title>GHOSTYPE - Remote Keyboard Controller v2.2</title>
     <style>
         * {
             margin: 0;
@@ -15,11 +15,10 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            margin: 0;
-            padding: 20px;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
+            padding: 20px;
         }
 
         .container {
@@ -28,8 +27,9 @@
             padding: 30px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 1000px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .header {
@@ -62,24 +62,13 @@
             margin-left: 10px;
         }
 
-        .info-banner {
-            background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border-left: 5px solid #4caf50;
-        }
-
-        .info-title {
-            font-weight: bold;
-            color: #2e7d32;
-            margin-bottom: 8px;
-            font-size: 1.1em;
-        }
-
-        .info-text {
-            color: #388e3c;
-            line-height: 1.4;
+        .connection-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 0.9em;
         }
 
         .status-bar {
@@ -190,6 +179,12 @@
             gap: 10px;
         }
 
+        .protocol-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         input[type="checkbox"] {
             width: 20px;
             height: 20px;
@@ -202,6 +197,46 @@
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
+        }
+
+        /* 탭 스타일 */
+        .tab-container {
+            margin-bottom: 30px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 20px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .input-section {
@@ -253,57 +288,132 @@
             background: linear-gradient(45deg, #45a049, #4caf50);
         }
 
-        .decoder-button {
-            width: 100%;
-            margin-top: 10px;
-            padding: 15px;
-            font-size: 1.1em;
-            background: linear-gradient(45deg, #ff9800, #ff6b00);
+        /* 파일 업로드 스타일 */
+        .file-upload-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
         }
 
-        .decoder-button:hover:not(:disabled) {
-            background: linear-gradient(45deg, #ff6b00, #ff9800);
-        }
-
-        .preview-section {
+        .file-drop-zone {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
             background: #fff;
+        }
+
+        .file-drop-zone:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .file-drop-zone.dragover {
+            border-color: #4caf50;
+            background: #f1f8e9;
+            transform: scale(1.02);
+        }
+
+        .file-drop-zone h4 {
+            color: #666;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .file-drop-zone p {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .supported-files {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .file-type-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .selected-files {
+            margin-top: 20px;
+        }
+
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            background: white;
+            border: 2px solid #e9ecef;
             border-radius: 10px;
             padding: 15px;
-            margin-top: 15px;
-            border: 1px solid #dee2e6;
-        }
-
-        .preview-title {
-            font-weight: bold;
-            color: #495057;
             margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
         }
 
-        .preview-content {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.85em;
-            word-break: break-all;
-            max-height: 100px;
-            overflow-y: auto;
-            border: 1px solid #ddd;
+        .file-item:hover {
+            border-color: #667eea;
         }
 
-        .encoding-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+        .file-item.error {
+            border-color: #e74c3c;
+            background: #fdf2f2;
         }
 
-        .stat-box {
-            background: #e3f2fd;
-            padding: 8px;
-            border-radius: 5px;
-            text-align: center;
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #666;
             font-size: 0.9em;
+        }
+
+        .file-content-preview {
+            color: #777;
+            font-size: 0.8em;
+            font-family: 'Courier New', monospace;
+            margin-top: 5px;
+            max-height: 40px;
+            overflow: hidden;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .file-remove-btn {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            padding: 6px 12px;
+            font-size: 0.8em;
+            min-width: auto;
+        }
+
+        .file-remove-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #c0392b, #e74c3c);
         }
 
         .test-section {
@@ -325,6 +435,14 @@
 
         .test-btn:hover:not(:disabled) {
             background: linear-gradient(45deg, #ff6b00, #ff9800);
+        }
+
+        .special-test-btn {
+            background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+        }
+
+        .special-test-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #7b1fa2, #9c27b0);
         }
 
         .countdown-modal {
@@ -481,6 +599,17 @@
             font-weight: bold;
         }
 
+        .speed-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #4caf50;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 20px;
@@ -493,156 +622,210 @@
             .speed-selector {
                 flex-direction: column;
             }
+
+            .tab-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">📡 GHOSTYPE <span class="version-badge">v3.1</span></div>
-            <div class="subtitle">Improved Base64 Remote Keyboard System</div>
+            <div class="logo">💻 GHOSTYPE <span class="version-badge">v2.2</span></div>
+            <div class="subtitle">PC2 → BLE → ESP32 → PC1 원격 키보드 (파일 전송 지원)</div>
         </div>
 
-        <div class="info-banner">
-            <div class="info-title">🎯 Enhanced Pre-encoded Decoder System</div>
-            <div class="info-text">
-                All text is automatically Base64 encoded for 100% ESP32 compatibility. 
-                The decoder is now pre-encoded for faster, more reliable transmission.
-            </div>
+        <div class="connection-info">
+            <strong>시스템 구성:</strong> PC2 (이 화면) → 블루투스 → ESP32 (USB) → PC1 (자동 입력)
         </div>
 
         <div id="status" class="status-bar disconnected">
-            🔴 Not connected to ESP32
+            🔴 ESP32와 연결되지 않음
         </div>
 
         <div class="controls">
-            <button id="connectBtn" onclick="connectDevice()">🔗 Connect ESP32</button>
-            <button id="disconnectBtn" onclick="disconnectDevice()" disabled>⚡ Disconnect</button>
-            <button onclick="clearLog()">🗑️ Clear Log</button>
-            <button onclick="clearText()">📄 Clear Text</button>
+            <button id="connectBtn" onclick="connectDevice()">🔗 ESP32 연결</button>
+            <button id="disconnectBtn" onclick="disconnectDevice()" disabled>⚡ 연결 해제</button>
+            <button onclick="clearLog()">🗑️ 로그 지우기</button>
         </div>
 
         <div class="settings-section">
-            <h3>⚙️ Transmission Settings</h3>
+            <h3>⚙️ 입력 설정</h3>
             
             <div class="setting-row">
-                <label>⚡ Typing Speed on PC1:</label>
+                <label>⚡ 타이핑 속도:</label>
                 <div class="speed-selector">
-                    <button class="speed-btn" onclick="setSpeed(0)" data-speed="0">Slow</button>
-                    <button class="speed-btn active" onclick="setSpeed(1)" data-speed="1">Normal</button>
-                    <button class="speed-btn" onclick="setSpeed(2)" data-speed="2">Fast</button>
-                    <button class="speed-btn" onclick="setSpeed(3)" data-speed="3">Instant</button>
+                    <button class="speed-btn" onclick="setSpeed(0)" data-speed="0">느림 (80-120ms)</button>
+                    <button class="speed-btn active" onclick="setSpeed(1)" data-speed="1">보통 (40-70ms)</button>
+                    <button class="speed-btn" onclick="setSpeed(2)" data-speed="2">빠름 (20-40ms)</button>
+                    <button class="speed-btn" onclick="setSpeed(3)" data-speed="3">즉시 (5ms)</button>
                 </div>
             </div>
             
             <div class="setting-row">
-                <label>⏰ Countdown Timer:</label>
+                <label>⏰ 카운트다운:</label>
                 <div class="countdown-control">
                     <input type="checkbox" id="useCountdown" checked>
-                    <label for="useCountdown">Enable</label>
+                    <label for="useCountdown">사용</label>
                     <input type="number" id="countdownSeconds" min="1" max="10" value="3">
-                    <span>seconds</span>
+                    <span>초</span>
                 </div>
             </div>
             
             <div class="setting-row">
-                <label>📦 Transmission Packet Size:</label>
-                <div class="countdown-control">
+                <label>📦 패킷 프로토콜:</label>
+                <div class="protocol-control">
+                    <input type="checkbox" id="useProtocol" checked>
+                    <label for="useProtocol">END 마커 사용 (안정성 향상)</label>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <label>📏 패킷 크기:</label>
+                <div class="protocol-control">
                     <input type="number" id="packetSize" min="20" max="200" value="80">
-                    <span>bytes (Recommended: 80)</span>
+                    <span>bytes (기본: 80)</span>
                 </div>
             </div>
         </div>
 
-        <div class="input-section">
-            <h3>⌨️ Text to Send to PC1</h3>
-            <textarea 
-                id="textInput" 
-                placeholder="Enter any text here - Korean, English, numbers, special characters, emojis...
-Everything will be automatically Base64 encoded for safe transmission!
-
-Examples:
-- Hello World!
-- 안녕하세요!
-- Mixed text: Hello 안녕 World 세계 123 !@#$%
-- Emojis: 🎉💖🚀🌟
-
-Ctrl+Enter for quick send"
-                oninput="updateCharCount(); updatePreview();"
-            ></textarea>
-            <div class="char-count" id="charCount">0 characters</div>
-            
-            <!-- Base64 encoding preview -->
-            <div class="preview-section" id="encodingPreview" style="display: none;">
-                <div class="preview-title">📡 Base64 Encoded Preview (What ESP32 will transmit)</div>
-                <div class="preview-content" id="previewContent"></div>
-                <div class="encoding-stats" id="encodingStats"></div>
+        <!-- 탭 컨테이너 -->
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('text')">✏️ 텍스트 전송</button>
+                <button class="tab-button" onclick="switchTab('files')">📁 파일 전송</button>
             </div>
-            
-            <div class="transmission-status" id="transmissionStatus">
-                <strong>Transmitting to ESP32...</strong>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+
+            <!-- 텍스트 전송 탭 -->
+            <div id="textTab" class="tab-content active">
+                <div class="input-section">
+                    <h3>⌨️ PC1에 입력할 텍스트 <span id="speedIndicator" class="speed-indicator">보통 속도</span></h3>
+                    <textarea 
+                        id="textInput" 
+                        placeholder="여기에 입력한 텍스트가 PC1에 자동으로 타이핑됩니다.&#10;영문, 숫자, 모든 특수문자(!@#$%^&*() 등) 지원&#10;여러 줄 입력도 가능합니다.&#10;&#10;Ctrl+Enter로 빠른 전송"
+                        oninput="updateCharCount()"
+                    ></textarea>
+                    <div class="char-count" id="charCount">0 문자</div>
+                    
+                    <div class="transmission-status" id="transmissionStatus">
+                        <strong>전송 중...</strong>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div id="transmissionInfo"></div>
+                    </div>
+                    
+                    <button class="send-button" id="sendBtn" onclick="sendText()" disabled>
+                        📤 PC1에 텍스트 전송
+                    </button>
                 </div>
-                <div id="transmissionInfo"></div>
-            </div>
-            
-            <button class="send-button" id="sendBtn" onclick="sendText()" disabled>
-                📤 Send Text to PC1 via ESP32
-            </button>
-            
-            <button class="decoder-button" id="sendDecoderBtn" onclick="sendDecoder()" disabled>
-                🛠️ Send Base64 Decoder to PC1
-            </button>
-        </div>
 
-        <div class="test-section">
-            <h3>🧪 Quick Test Buttons</h3>
-            <div class="test-grid">
-                <button class="test-btn" onclick="quickSend('Hello World! 👋')" disabled>Hello World!</button>
-                <button class="test-btn" onclick="quickSend('안녕하세요! 🇰🇷')" disabled>Korean Test</button>
-                <button class="test-btn" onclick="quickSend('Mixed: Hello 안녕 World 세계')" disabled>Mixed Text</button>
-                <button class="test-btn" onclick="quickSend('Special: !@#$%^&*()')" disabled>Special Chars</button>
-                <button class="test-btn" onclick="quickSend('Numbers: 1234567890')" disabled>Numbers</button>
-                <button class="test-btn" onclick="quickSend('Emojis: 🎉💖🚀🌟⭐')" disabled>Emojis</button>
+                <div class="test-section">
+                    <h3>🧪 빠른 테스트</h3>
+                    <div class="test-grid">
+                        <button class="test-btn" onclick="quickSend('Hello World!')" disabled>Hello World!</button>
+                        <button class="test-btn" onclick="quickSend('GHOSTYPE Test 123')" disabled>Test 123</button>
+                        <button class="test-btn" onclick="quickSend('user@example.com')" disabled>이메일 주소</button>
+                        <button class="test-btn" onclick="quickSend('https://www.example.com')" disabled>웹 주소</button>
+                        <button class="test-btn" onclick="quickSend('The quick brown fox jumps over the lazy dog')" disabled>긴 문장</button>
+                        <button class="test-btn" onclick="quickSend('password123!@#')" disabled>비밀번호 예시</button>
+                    </div>
+                </div>
+
+                <div class="test-section">
+                    <h3>🎨 특수문자 테스트</h3>
+                    <div class="test-grid">
+                        <button class="special-test-btn" onclick="quickSend('!@#$%^&*()')" disabled>!@#$%^&*()</button>
+                        <button class="special-test-btn" onclick="quickSend('-_=+[]{}\\|')" disabled>-_=+[]{}\\|</button>
+                        <button class="special-test-btn" onclick="quickSend(';:\\'\\',.<>?/')" disabled>;:'",.<>?/</button>
+                        <button class="special-test-btn" onclick="quickSend('~`')" disabled>~`</button>
+                        <button class="special-test-btn" onclick="quickSend('1234567890')" disabled>숫자</button>
+                        <button class="special-test-btn" onclick="quickSend('ABCabc')" disabled>대소문자</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 파일 전송 탭 -->
+            <div id="filesTab" class="tab-content">
+                <div class="file-upload-section">
+                    <h3>📁 파일 업로드 및 전송</h3>
+                    
+                    <!-- 파일 드롭 존 -->
+                    <div class="file-drop-zone" id="fileDropZone" onclick="document.getElementById('fileInput').click()">
+                        <h4>📂 파일을 선택하거나 여기에 끌어다 놓으세요</h4>
+                        <p>최대 10개 파일, 각 파일 최대 40,000자</p>
+                        <div class="supported-files">
+                            <span class="file-type-tag">.txt</span>
+                            <span class="file-type-tag">.js</span>
+                            <span class="file-type-tag">.html</span>
+                            <span class="file-type-tag">.css</span>
+                            <span class="file-type-tag">.json</span>
+                            <span class="file-type-tag">.csv</span>
+                        </div>
+                    </div>
+                    
+                    <input type="file" id="fileInput" multiple accept=".txt,.js,.html,.css,.json,.csv" style="display: none;" onchange="handleFileSelect(event)">
+                    
+                    <!-- 선택된 파일 목록 -->
+                    <div class="selected-files" id="selectedFiles" style="display: none;">
+                        <h4>📋 선택된 파일 목록</h4>
+                        <div class="file-list" id="fileList"></div>
+                        <div class="controls" style="margin-top: 15px;">
+                            <button onclick="clearAllFiles()" class="file-remove-btn">🗑️ 전체 지우기</button>
+                            <button onclick="addMoreFiles()" style="background: linear-gradient(45deg, #2196f3, #1976d2);">➕ 파일 추가</button>
+                        </div>
+                    </div>
+                    
+                    <div class="transmission-status" id="fileTransmissionStatus">
+                        <strong>파일 전송 중...</strong>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="fileProgressFill"></div>
+                        </div>
+                        <div id="fileTransmissionInfo"></div>
+                    </div>
+                    
+                    <button class="send-button" id="sendFilesBtn" onclick="sendFiles()" disabled>
+                        📤 PC1에 파일 전송
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="countdown-modal" id="countdownModal">
             <div class="countdown-content">
-                <div class="countdown-message">Make sure PC1 input field is ready!</div>
+                <div class="countdown-message">PC1의 입력 위치를 확인하세요!</div>
                 <div class="countdown-number" id="countdownNumber">3</div>
                 <div class="countdown-text-preview" id="countdownTextPreview"></div>
-                <button class="cancel-countdown-btn" onclick="cancelCountdown()">Cancel (ESC)</button>
+                <button class="cancel-countdown-btn" onclick="cancelCountdown()">취소 (ESC)</button>
             </div>
         </div>
 
         <div class="log" id="log">
-            <div class="log-entry log-info">[System] GHOSTYPE v3.1 ready - Improved Base64 encoding system</div>
+            <div class="log-entry log-info">[시스템] Web Bluetooth 준비 완료 (v2.2 - 안전한 진행률 표시)</div>
         </div>
 
         <div class="info-box">
-            <h4>📋 How It Works</h4>
+            <h4>📋 사용 방법</h4>
             <ul>
-                <li><strong>Step 1:</strong> Type any text (Korean, English, emojis, special characters)</li>
-                <li><strong>Step 2:</strong> Text is automatically Base64 encoded (100% ASCII safe)</li>
-                <li><strong>Step 3:</strong> ESP32 receives and transmits the Base64 string via HID</li>
-                <li><strong>Step 4:</strong> PC1 receives the Base64 string</li>
-                <li><strong>Step 5:</strong> Use the decoder to convert back to original text</li>
-                <li><strong>Decoder Setup:</strong> Click "Send Base64 Decoder" once to setup PC1</li>
+                <li><strong>PC1:</strong> ESP32를 USB로 연결 (HID 키보드로 인식)</li>
+                <li><strong>PC1:</strong> 파일 수신기 HTML을 열어두기</li>
+                <li><strong>PC2:</strong> Chrome/Edge 브라우저에서 이 페이지 열기</li>
+                <li><strong>PC2:</strong> "ESP32 연결" 버튼 클릭 후 GHOSTYPE 디바이스 선택</li>
+                <li><strong>텍스트:</strong> 일반 텍스트 입력 및 전송</li>
+                <li><strong>파일:</strong> 개발 파일들을 업로드해서 한 번에 전송</li>
+                <li><strong>설정:</strong> 타이핑 속도 선택 (느림/보통/빠름/즉시)</li>
+                <li>모든 영문, 숫자, 특수문자 지원 (US 키보드 레이아웃)</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // src/test_v3_improved.html - 개선된 Base64 인코딩 시스템
-        
-        // BLE 설정 상수
+        // BLE 설정
         const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
         const RX_CHAR_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
         const TX_CHAR_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
 
-        // 전역 상태 변수
         let device = null;
         let server = null;
         let service = null;
@@ -650,110 +833,17 @@ Ctrl+Enter for quick send"
         let txCharacteristic = null;
         let isConnected = false;
         let countdownTimer = null;
-        let currentTypingSpeed = 1;
+        let currentTypingSpeed = 1; // 0=느림, 1=보통(기본), 2=빠름, 3=즉시
         let isTransmitting = false;
+        let currentTab = 'text';
 
-        /**
-         * 실제 ghostype_decoder_v3.html 파일을 Base64로 인코딩한 청크들
-         * 파일 크기를 고려하여 20개의 청크로 분할
-         * 각 청크는 ESP32가 안정적으로 처리할 수 있는 크기(약 2000자)로 최적화
-         */
-        const DECODER_CHUNKS = [
-            "PCEtLSBzcmMvZ2hvc3R5cGVfZGVjb2Rlcl9taW5pbWFsLmh0bWwgLS0+DQo8IURPQ1RZUEUgaHRtbD4NCjxodG1sPg0KPGhlYWQ+DQogICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiPg0KICAgIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4NCiAgICA8dGl0bGU+R0hPU1RZUEUgRGVjb2RlcjwvdGl0bGU+DQogICAgPHN0eWxlPg0KICAgICAgICAqIHsgbWFyZ2luOiAwOyBwYWRkaW5nOiAwOyBib3gtc2l6aW5nOiBib3JkZXItYm94OyB9DQogICAgICAgIGJvZHkgew0KICAgICAgICAgICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgc2Fucy1zZXJpZjsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCgxMzVkZWcsICM2NjdlZWEsICM3NjRiYTIpOw0KICAgICAgICAgICAgbWluLWhlaWdodDogMTAwdmg7DQogICAgICAgICAgICBkaXNwbGF5OiBmbGV4Ow0KICAgICAgICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7DQogICAgICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyOw0KICAgICAgICAgICAgcGFkZGluZzogMjBweDsNCiAgICAgICAgfQ0KICAgICAgICAuY29udGFpbmVyIHsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IHdoaXRlOw0KICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMjBweDsNCiAgICAgICAgICAgIHBhZGRpbmc6IDMwcHg7DQogICAgICAgICAgICBib3gtc2hhZG93OiAwIDIwcHggNDBweCByZ2JhKDAsMCwwLDAuMSk7DQogICAgICAgICAgICB3aWR0aDogMTAwJTsNCiAgICAgICAgICAgIG1heC13aWR0aDogOTAwcHg7DQogICAgICAgIH0NCiAgICAgICAgLmhlYWRlciB7DQogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICAgICAgICBtYXJnaW4tYm90dG9tOiAzMHB4Ow0KICAgICAgICB9DQogICAgICAgIC5sb2dvIHsNCiAgICAgICAgICAgIGZvbnQtc2l6ZTogMi41ZW07DQogICAgICAgICAgICBmb250LXdlaWdodDogYm9sZDsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg0NWRlZywgIzY2N2VlYSwgIzc2NGJhMik7DQogICAgICAgICAgICAtd2Via2l0LWJhY2tncm91bmQtY2xpcDogdGV4dDsNCiAgICAgICAgICAgIGJhY2tncm91bmQtY2xpcDogdGV4dDsNCiAgICAgICAgICAgIC13ZWJraXQtdGV4dC1maWxsLWNvbG9yOiB0cmFuc3BhcmVudDsNCg==",
-            "ICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMTBweDsNCiAgICAgICAgfQ0KICAgICAgICAuc3VidGl0bGUgeyBjb2xvcjogIzY2NjsgZm9udC1zaXplOiAxLjFlbTsgfQ0KICAgICAgICAuZGVjb2RlciB7DQogICAgICAgICAgICBkaXNwbGF5OiBncmlkOw0KICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiAxZnIgMWZyOw0KICAgICAgICAgICAgZ2FwOiAyMHB4Ow0KICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMjBweDsNCiAgICAgICAgfQ0KICAgICAgICAuZ3JvdXAgeyBkaXNwbGF5OiBmbGV4OyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyB9DQogICAgICAgIC5sYWJlbCB7DQogICAgICAgICAgICBmb250LXNpemU6IDEuMWVtOw0KICAgICAgICAgICAgZm9udC13ZWlnaHQ6IGJvbGQ7DQogICAgICAgICAgICBjb2xvcjogIzMzMzsNCiAgICAgICAgICAgIG1hcmdpbi1ib3R0b206IDEwcHg7DQogICAgICAgIH0NCiAgICAgICAgdGV4dGFyZWEgew0KICAgICAgICAgICAgd2lkdGg6IDEwMCU7DQogICAgICAgICAgICBoZWlnaHQ6IDI1MHB4Ow0KICAgICAgICAgICAgcGFkZGluZzogMTVweDsNCiAgICAgICAgICAgIGJvcmRlcjogMnB4IHNvbGlkICNkZGQ7DQogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAxMHB4Ow0KICAgICAgICAgICAgZm9udC1zaXplOiAxNHB4Ow0KICAgICAgICAgICAgZm9udC1mYW1pbHk6ICdDb3VyaWVyIE5ldycsIG1vbm9zcGFjZTsNCiAgICAgICAgICAgIHJlc2l6ZTogdmVydGljYWw7DQogICAgICAgIH0NCiAgICAgICAgdGV4dGFyZWE6Zm9jdXMgew0KICAgICAgICAgICAgb3V0bGluZTogbm9uZTsNCiAgICAgICAgICAgIGJvcmRlci1jb2xvcjogIzY2N2VlYTsNCiAgICAgICAgICAgIGJveC1zaGFkb3c6IDAgMCAwIDNweCByZ2JhKDEwMiwgMTI2LCAyMzQsIDAuMSk7DQogICAgICAgIH0NCiAgICAgICAgLmlucHV0IHsgYmFja2dyb3VuZDogI2Y4ZjlmYTsgfQ0KICAgICAgICAub3V0cHV0IHsgYmFja2dyb3VuZDogI2U4ZjVlODsgfQ0KICAgICAgICAuYnV0dG9ucyB7DQogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICAgICAgICBtYXJnaW4tdG9wOiAyMHB4Ow0KICAgICAgICB9DQogICAgICAgIGJ1dHRvbiB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoNDVkZWcsICM2NjdlZWEsICM3NjRiYTIpOw0KICAgICAgICAgICAgY29sb3I6IHdoaXRlOw0KICAgICAgICAgICAgYg==",
-            "b3JkZXI6IG5vbmU7DQogICAgICAgICAgICBwYWRkaW5nOiAxMnB4IDMwcHg7DQogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAyNXB4Ow0KICAgICAgICAgICAgZm9udC1zaXplOiAxZW07DQogICAgICAgICAgICBmb250LXdlaWdodDogNjAwOw0KICAgICAgICAgICAgY3Vyc29yOiBwb2ludGVyOw0KICAgICAgICAgICAgdHJhbnNpdGlvbjogYWxsIDAuM3M7DQogICAgICAgICAgICBtYXJnaW46IDAgMTBweDsNCiAgICAgICAgfQ0KICAgICAgICBidXR0b246aG92ZXI6bm90KDpkaXNhYmxlZCkgew0KICAgICAgICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0ycHgpOw0KICAgICAgICAgICAgYm94LXNoYWRvdzogMCAxMHB4IDIwcHggcmdiYSgwLDAsMCwwLjIpOw0KICAgICAgICB9DQogICAgICAgIGJ1dHRvbjpkaXNhYmxlZCB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiAjY2NjOw0KICAgICAgICAgICAgY3Vyc29yOiBub3QtYWxsb3dlZDsNCiAgICAgICAgICAgIG9wYWNpdHk6IDAuNjsNCiAgICAgICAgICAgIHRyYW5zZm9ybTogbm9uZTsNCiAgICAgICAgICAgIGJveC1zaGFkb3c6IG5vbmU7DQogICAgICAgIH0NCiAgICAgICAgLmNvcHkgeyBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoNDVkZWcsICM0Y2FmNTAsICM0NWEwNDkpOyB9DQogICAgICAgIC5jbGVhciB7IGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg0NWRlZywgI2ZmOTgwMCwgI2ZmNmIwMCk7IH0NCiAgICAgICAgQG1lZGlhIChtYXgtd2lkdGg6IDc2OHB4KSB7DQogICAgICAgICAgICAuY29udGFpbmVyIHsgcGFkZGluZzogMjBweDsgfQ0KICAgICAgICAgICAgLmRlY29kZXIgeyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDFmcjsgZ2FwOiAxNXB4OyB9DQogICAgICAgICAgICB0ZXh0YXJlYSB7IGhlaWdodDogMTgwcHg7IH0NCiAgICAgICAgICAgIGJ1dHRvbiB7IHdpZHRoOiAxMDAlOyBtYXJnaW46IDVweCAwOyB9DQogICAgICAgIH0NCiAgICA8L3N0eWxlPg0KPC9oZWFkPg0KPGJvZHk+DQogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4NCiAgICAgICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4NCiAgICAgICAgICAgIDxkaXYgY2xhc3M9ImxvZ28iPkdIT1NUWVBFPC9kaXY+DQogICAgICAgICAgICA8ZGl2IGNsYXNzPSJzdWJ0aXRsZSI+QmFzZTY0IERlY29kZXI8L2Rpdj4NCiAgICAgICAgPC9kaXY+DQogICAgICAgIDxkaXYgY2xhc3M9ImRlY29kZXIiPg0KICAgICAgICAgICAgPGRpdg==",
-            "IGNsYXNzPSJncm91cCI+DQogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ibGFiZWwiPkJhc2U2NCBJbnB1dDwvZGl2Pg0KICAgICAgICAgICAgICAgIDx0ZXh0YXJlYSBpZD0iaW5wdXQiIGNsYXNzPSJpbnB1dCIgcGxhY2Vob2xkZXI9IlBhc3RlIEJhc2U2NCB0ZXh0IGhlcmUuLi4iPjwvdGV4dGFyZWE+DQogICAgICAgICAgICA8L2Rpdj4NCiAgICAgICAgICAgIDxkaXYgY2xhc3M9Imdyb3VwIj4NCiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPSJsYWJlbCI+RGVjb2RlZCBPdXRwdXQ8L2Rpdj4NCiAgICAgICAgICAgICAgICA8dGV4dGFyZWEgaWQ9Im91dHB1dCIgY2xhc3M9Im91dHB1dCIgcGxhY2Vob2xkZXI9IkRlY29kZWQgdGV4dCB3aWxsIGFwcGVhciBoZXJlLi4uIiByZWFkb25seT48L3RleHRhcmVhPg0KICAgICAgICAgICAgPC9kaXY+DQogICAgICAgIDwvZGl2Pg0KICAgICAgICA8ZGl2IGNsYXNzPSJidXR0b25zIj4NCiAgICAgICAgICAgIDxidXR0b24gb25jbGljaz0iZGVjb2RlKCkiPkRlY29kZTwvYnV0dG9uPg0KICAgICAgICAgICAgPGJ1dHRvbiBvbmNsaWNrPSJjb3B5KCkiIGNsYXNzPSJjb3B5IiBpZD0iY29weUJ0biIgZGlzYWJsZWQ+IENvcHk8L2J1dHRvbj4NCiAgICAgICAgICAgIDxidXR0b24gb25jbGljaz0iY2xlYXIoKSIgY2xhc3M9ImNsZWFyIj5DbGVhcjwvYnV0dG9uPg0KICAgICAgICA8L2Rpdj4NCiAgICA8L2Rpdj4NCiAgICA8c2NyaXB0Pg0KICAgICAgICBmdW5jdGlvbiBkZWNvZGUoKSB7DQogICAgICAgICAgICBjb25zdCBpbnB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdpbnB1dCcpLnZhbHVlLnRyaW0oKTsNCiAgICAgICAgICAgIGNvbnN0IG91dHB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdvdXRwdXQnKTsNCiAgICAgICAgICAgIGNvbnN0IGNvcHlCdG4gPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29weUJ0bicpOw0KICAgICAgICAgICAgDQogICAgICAgICAgICBpZiAoIWlucHV0KSB7DQogICAgICAgICAgICAgICAgYWxlcnQoJ1BsZWFzZSBlbnRlciBCYXNlNjQgdGV4dC4nKTsNCiAgICAgICAgICAgICAgICByZXR1cm47DQogICAgICAgICAgICB9DQogICAgICAgICAgICANCiAgICAgICAgICAgIHRyeSB7DQogICAgICAgICAgICAgICAgY29uc3QgY2xlYW4gPSBpbnB1dC5yZXBsYWNlKC9ccy9nLCAnJyk7DQogICAgICAgICAgICAgICAgY29uc3QgZGVjb2RlZCA9IGRlY29kZVVSSUNvbXBvbmVu",
-            "dChlc2NhcGUoYXRvYihjbGVhbikpKTsNCiAgICAgICAgICAgICAgICBvdXRwdXQudmFsdWUgPSBkZWNvZGVkOw0KICAgICAgICAgICAgICAgIGNvcHlCdG4uZGlzYWJsZWQgPSBmYWxzZTsNCiAgICAgICAgICAgIH0gY2F0Y2ggKGVycm9yKSB7DQogICAgICAgICAgICAgICAgYWxlcnQoJ0ludmFsaWQgQmFzZTY0IGZvcm1hdC4nKTsNCiAgICAgICAgICAgICAgICBvdXRwdXQudmFsdWUgPSAnJzsNCiAgICAgICAgICAgICAgICBjb3B5QnRuLmRpc2FibGVkID0gdHJ1ZTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZnVuY3Rpb24gY29weSgpIHsNCiAgICAgICAgICAgIGNvbnN0IG91dHB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdvdXRwdXQnKTsNCiAgICAgICAgICAgIGlmICghb3V0cHV0LnZhbHVlLnRyaW0oKSkgew0KICAgICAgICAgICAgICAgIGFsZXJ0KCdObyB0ZXh0IHRvIGNvcHkuJyk7DQogICAgICAgICAgICAgICAgcmV0dXJuOw0KICAgICAgICAgICAgfQ0KICAgICAgICAgICAgb3V0cHV0LnNlbGVjdCgpOw0KICAgICAgICAgICAgZG9jdW1lbnQuZXhlY0NvbW1hbmQoJ2NvcHknKTsNCiAgICAgICAgICAgIGFsZXJ0KCdUZXh0IGNvcGllZCEnKTsNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZnVuY3Rpb24gY2xlYXIoKSB7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnaW5wdXQnKS52YWx1ZSA9ICcnOw0KICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ291dHB1dCcpLnZhbHVlID0gJyc7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29weUJ0bicpLmRpc2FibGVkID0gdHJ1ZTsNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2lucHV0JykuYWRkRXZlbnRMaXN0ZW5lcigna2V5ZG93bicsIGZ1bmN0aW9uKGUpIHsNCiAgICAgICAgICAgIGlmIChlLmN0cmxLZXkgJiYgZS5rZXkgPT09ICdFbnRlcicpIHsNCiAgICAgICAgICAgICAgICBkZWNvZGUoKTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfSk7DQogICAgICAgIA0KICAgICAgICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcignbG9hZCcsIGZ1bmN0aW9uKCkgew0KICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2lucHV0JykuZm9jdXMoKTsNCiAgICAgICAgfSk7DQogICAgPC9zY3JpcHQ+DQo8L2JvZHk+DQo8L2h0bWw+"  
-        ];
+        // 파일 관련 변수
+        let selectedFiles = [];
+        const MAX_FILES = 10;
+        const MAX_FILE_SIZE = 40000; // 40,000자
+        const SUPPORTED_EXTENSIONS = ['.txt', '.js', '.html', '.css', '.json', '.csv'];
 
-        /**
-         * 미리 인코딩된 디코더 청크들의 메타데이터
-         */
-        const DECODER_METADATA = {
-            totalChunks: DECODER_CHUNKS.length,
-            fileName: 'ghostype_decoder_v3.html',
-            description: 'GHOSTYPE Base64 Decoder v3.0',
-            estimatedSize: 'Approximately 15KB when assembled'
-        };
-
-        /**
-         * Base64 인코딩 함수
-         */
-        function encodeToBase64(text) {
-            try {
-                const startTime = performance.now();
-                const encoded = btoa(unescape(encodeURIComponent(text)));
-                const endTime = performance.now();
-                const processingTime = endTime - startTime;
-                
-                addLog(`Base64 encoded: ${text.length} → ${encoded.length} chars (${processingTime.toFixed(2)}ms)`, 'info');
-                
-                return {
-                    success: true,
-                    original: text,
-                    encoded: encoded,
-                    originalLength: text.length,
-                    encodedLength: encoded.length,
-                    expansionRatio: (encoded.length / text.length).toFixed(2),
-                    processingTime: processingTime
-                };
-                
-            } catch (error) {
-                addLog(`Base64 encoding failed: ${error.message}`, 'error');
-                return {
-                    success: false,
-                    error: error.message
-                };
-            }
-        }
-
-        /**
-         * 텍스트 미리보기 업데이트
-         */
-        function updatePreview() {
-            const originalText = document.getElementById('textInput').value;
-            const previewSection = document.getElementById('encodingPreview');
-            const previewContent = document.getElementById('previewContent');
-            const encodingStats = document.getElementById('encodingStats');
-            
-            if (!originalText.trim()) {
-                previewSection.style.display = 'none';
-                return;
-            }
-            
-            const encodingResult = encodeToBase64(originalText);
-            
-            if (!encodingResult.success) {
-                previewSection.style.display = 'none';
-                return;
-            }
-            
-            previewSection.style.display = 'block';
-            previewContent.textContent = encodingResult.encoded;
-            
-            encodingStats.innerHTML = `
-                <div class="stat-box">
-                    <strong>Original</strong><br>
-                    ${encodingResult.originalLength} chars
-                </div>
-                <div class="stat-box">
-                    <strong>Base64</strong><br>
-                    ${encodingResult.encodedLength} chars
-                </div>
-                <div class="stat-box">
-                    <strong>Expansion</strong><br>
-                    ${encodingResult.expansionRatio}x
-                </div>
-                <div class="stat-box">
-                    <strong>ASCII Safe</strong><br>
-                    ✅ 100%
-                </div>
-            `;
-        }
-
-        /**
-         * 로그 엔트리 추가
-         */
+        // 로그 추가
         function addLog(message, type = 'info') {
             const log = document.getElementById('log');
             const entry = document.createElement('div');
@@ -763,52 +853,53 @@ Ctrl+Enter for quick send"
             log.appendChild(entry);
             log.scrollTop = log.scrollHeight;
             
+            // 로그가 너무 많으면 오래된 것 제거
             const entries = log.getElementsByClassName('log-entry');
             if (entries.length > 100) {
                 entries[0].remove();
             }
         }
 
-        /**
-         * 문자 수 업데이트
-         */
+        // 탭 전환 함수
+        function switchTab(tabName) {
+            // 탭 버튼 상태 변경
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+
+            // 탭 내용 표시/숨김
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            if (tabName === 'text') {
+                document.getElementById('textTab').classList.add('active');
+                addLog('📝 텍스트 전송 탭 활성화', 'info');
+            } else if (tabName === 'files') {
+                document.getElementById('filesTab').classList.add('active');
+                addLog('📁 파일 전송 탭 활성화', 'info');
+            }
+            
+            currentTab = tabName;
+        }
+
+        // 로그 지우기
+        function clearLog() {
+            document.getElementById('log').innerHTML = '<div class="log-entry log-info">[시스템] 로그 초기화됨</div>';
+        }
+
+        // 문자 수 업데이트
         function updateCharCount() {
             const text = document.getElementById('textInput').value;
-            const charCountEl = document.getElementById('charCount');
-            
-            const koreanCount = (text.match(/[가-힣ㄱ-ㅎㅏ-ㅣ]/g) || []).length;
-            const englishCount = (text.match(/[a-zA-Z]/g) || []).length;
-            const numberCount = (text.match(/[0-9]/g) || []).length;
-            const specialCount = text.length - koreanCount - englishCount - numberCount;
-            
-            charCountEl.textContent = 
-                `${text.length} characters (Korean: ${koreanCount}, English: ${englishCount}, Numbers: ${numberCount}, Special: ${specialCount})`;
+            document.getElementById('charCount').textContent = `${text.length} 문자`;
         }
 
-        /**
-         * 로그 지우기
-         */
-        function clearLog() {
-            document.getElementById('log').innerHTML = 
-                '<div class="log-entry log-info">[System] Log cleared - GHOSTYPE v3.1 Improved Base64 system</div>';
-        }
-
-        /**
-         * 텍스트 입력 지우기
-         */
-        function clearText() {
-            document.getElementById('textInput').value = '';
-            updateCharCount();
-            updatePreview();
-            addLog('Text input cleared', 'info');
-        }
-
-        /**
-         * 타이핑 속도 설정
-         */
+        // 타이핑 속도 설정
         function setSpeed(speed) {
             currentTypingSpeed = speed;
             
+            // 버튼 스타일 업데이트
             document.querySelectorAll('.speed-btn').forEach(btn => {
                 if (parseInt(btn.dataset.speed) === speed) {
                     btn.classList.add('active');
@@ -817,44 +908,47 @@ Ctrl+Enter for quick send"
                 }
             });
             
-            const speedNames = ['Slow', 'Normal', 'Fast', 'Instant'];
-            addLog(`Typing speed changed: ${speedNames[speed]}`, 'info');
+            // 속도 표시 업데이트
+            const speedNames = ['느림', '보통', '빠름', '즉시'];
+            const indicator = document.getElementById('speedIndicator');
+            indicator.textContent = speedNames[speed] + ' 속도';
             
+            // ESP32에 속도 설정 전송
             if (isConnected) {
-                sendDataToESP32(`SPEED:${speed}`);
+                sendData(`SPEED:${speed}`);
+                addLog(`타이핑 속도 변경: ${speedNames[speed]}`, 'info');
             }
         }
 
-        /**
-         * 연결 상태 업데이트
-         */
+        // 상태 업데이트
         function updateStatus(message, type) {
             const status = document.getElementById('status');
             status.textContent = message;
             status.className = `status-bar ${type}`;
         }
 
-        /**
-         * UI 요소 업데이트
-         */
+        // UI 업데이트
         function updateUI(connected) {
             isConnected = connected;
             document.getElementById('connectBtn').disabled = connected;
             document.getElementById('disconnectBtn').disabled = !connected;
             document.getElementById('sendBtn').disabled = !connected || isTransmitting;
-            document.getElementById('sendDecoderBtn').disabled = !connected || isTransmitting;
+            document.getElementById('sendFilesBtn').disabled = !connected || isTransmitting || selectedFiles.length === 0;
             
-            const testButtons = document.querySelectorAll('.test-btn');
+            // 모든 테스트 버튼 활성화/비활성화
+            const testButtons = document.querySelectorAll('.test-btn, .special-test-btn');
             testButtons.forEach(btn => btn.disabled = !connected || isTransmitting);
         }
 
-        /**
-         * 전송 진행률 표시
-         */
-        function showTransmissionStatus(show, progress = 0, info = '') {
-            const status = document.getElementById('transmissionStatus');
-            const fill = document.getElementById('progressFill');
-            const infoEl = document.getElementById('transmissionInfo');
+        // 전송 상태 표시
+        function showTransmissionStatus(show, progress = 0, info = '', isFile = false) {
+            const statusId = isFile ? 'fileTransmissionStatus' : 'transmissionStatus';
+            const fillId = isFile ? 'fileProgressFill' : 'progressFill';
+            const infoId = isFile ? 'fileTransmissionInfo' : 'transmissionInfo';
+            
+            const status = document.getElementById(statusId);
+            const fill = document.getElementById(fillId);
+            const infoEl = document.getElementById(infoId);
             
             if (show) {
                 status.classList.add('active');
@@ -865,13 +959,192 @@ Ctrl+Enter for quick send"
             }
         }
 
-        /**
-         * ESP32 BLE 디바이스에 연결
-         */
+        // 파일 크기 포맷 함수
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' bytes';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        // 파일 선택 처리
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            processSelectedFiles(files);
+        }
+
+        // 드래그 앤 드롭 설정
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('fileDropZone');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            function highlight() {
+                dropZone.classList.add('dragover');
+            }
+            
+            function unhighlight() {
+                dropZone.classList.remove('dragover');
+            }
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = Array.from(dt.files);
+                processSelectedFiles(files);
+            }
+        }
+
+        // 선택된 파일 처리
+        function processSelectedFiles(files) {
+            const newFiles = [];
+            
+            for (const file of files) {
+                // 파일 개수 제한 확인
+                if (selectedFiles.length + newFiles.length >= MAX_FILES) {
+                    addLog(`⚠️ 최대 ${MAX_FILES}개 파일만 선택할 수 있습니다`, 'warning');
+                    break;
+                }
+                
+                // 확장자 확인
+                const extension = '.' + file.name.split('.').pop().toLowerCase();
+                if (!SUPPORTED_EXTENSIONS.includes(extension)) {
+                    addLog(`⚠️ 지원하지 않는 파일 형식: ${file.name}`, 'warning');
+                    continue;
+                }
+                
+                // 파일 크기 확인 (대략적으로 바이트 수로 체크)
+                if (file.size > MAX_FILE_SIZE) {
+                    addLog(`⚠️ 파일이 너무 큽니다: ${file.name} (${formatFileSize(file.size)})`, 'warning');
+                    continue;
+                }
+                
+                newFiles.push({
+                    id: Date.now() + Math.random(),
+                    file: file,
+                    name: file.name.split('.').slice(0, -1).join('.'),
+                    extension: extension,
+                    fullName: file.name,
+                    size: file.size,
+                    content: '', // 나중에 읽음
+                    isValid: true,
+                    error: null
+                });
+            }
+            
+            // 파일 내용 읽기
+            Promise.all(newFiles.map(fileObj => readFileContent(fileObj)))
+                .then(() => {
+                    selectedFiles.push(...newFiles.filter(f => f.isValid));
+                    updateFileList();
+                    addLog(`📁 ${newFiles.filter(f => f.isValid).length}개 파일 선택됨`, 'success');
+                });
+        }
+
+        // 파일 내용 읽기
+        function readFileContent(fileObj) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const content = e.target.result;
+                    
+                    // 내용 길이 확인
+                    if (content.length > MAX_FILE_SIZE) {
+                        fileObj.isValid = false;
+                        fileObj.error = `파일 내용이 너무 깁니다 (${content.length}자 > ${MAX_FILE_SIZE}자)`;
+                        addLog(`⚠️ ${fileObj.fullName}: 내용이 너무 깁니다`, 'warning');
+                    } else {
+                        fileObj.content = content;
+                        fileObj.actualSize = content.length;
+                    }
+                    
+                    resolve();
+                };
+                
+                reader.onerror = function() {
+                    fileObj.isValid = false;
+                    fileObj.error = '파일 읽기 오류';
+                    addLog(`❌ ${fileObj.fullName}: 읽기 실패`, 'error');
+                    resolve();
+                };
+                
+                reader.readAsText(fileObj.file, 'UTF-8');
+            });
+        }
+
+        // 파일 목록 업데이트
+        function updateFileList() {
+            const fileList = document.getElementById('fileList');
+            const selectedFilesSection = document.getElementById('selectedFiles');
+            const sendFilesBtn = document.getElementById('sendFilesBtn');
+            
+            if (selectedFiles.length === 0) {
+                selectedFilesSection.style.display = 'none';
+                sendFilesBtn.disabled = true;
+                return;
+            }
+            
+            selectedFilesSection.style.display = 'block';
+            sendFilesBtn.disabled = !isConnected || isTransmitting;
+            
+            fileList.innerHTML = selectedFiles.map(fileObj => `
+                <div class="file-item ${fileObj.isValid ? '' : 'error'}">
+                    <div class="file-info">
+                        <div class="file-name">📄 ${fileObj.fullName}</div>
+                        <div class="file-size">${fileObj.isValid ? formatFileSize(fileObj.actualSize || fileObj.size) : '오류'}</div>
+                        ${fileObj.error ? `<div style="color: #e74c3c; font-size: 0.8em;">${fileObj.error}</div>` : ''}
+                        ${fileObj.isValid && fileObj.content ? `<div class="file-content-preview">${fileObj.content.substring(0, 100)}${fileObj.content.length > 100 ? '...' : ''}</div>` : ''}
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-remove-btn" onclick="removeFile('${fileObj.id}')">🗑️ 제거</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 파일 제거
+        function removeFile(fileId) {
+            selectedFiles = selectedFiles.filter(f => f.id != fileId);
+            updateFileList();
+            addLog('🗑️ 파일이 제거되었습니다', 'info');
+        }
+
+        // 전체 파일 지우기
+        function clearAllFiles() {
+            if (selectedFiles.length > 0 && confirm('모든 파일을 제거하시겠습니까?')) {
+                selectedFiles = [];
+                updateFileList();
+                document.getElementById('fileInput').value = '';
+                addLog('🗑️ 모든 파일이 제거되었습니다', 'info');
+            }
+        }
+
+        // 파일 추가
+        function addMoreFiles() {
+            document.getElementById('fileInput').click();
+        }
+
+        // BLE 연결 (기존 코드와 동일)
         async function connectDevice() {
             try {
-                addLog('Searching for GHOSTYPE ESP32 device...', 'info');
-                updateStatus('🔍 Searching for ESP32...', 'connecting');
+                addLog('ESP32 검색 시작...', 'info');
+                updateStatus('🔍 ESP32 검색 중...', 'connecting');
 
                 device = await navigator.bluetooth.requestDevice({
                     filters: [
@@ -880,13 +1153,13 @@ Ctrl+Enter for quick send"
                     optionalServices: [SERVICE_UUID]
                 });
 
-                addLog(`Found device: ${device.name}`, 'success');
+                addLog(`디바이스 발견: ${device.name}`, 'success');
                 device.addEventListener('gattserverdisconnected', onDisconnected);
 
-                addLog('Connecting to GATT server...', 'info');
+                addLog('GATT 서버 연결 중...', 'info');
                 server = await device.gatt.connect();
 
-                addLog('Getting Nordic UART Service...', 'info');
+                addLog('Nordic UART Service 검색 중...', 'info');
                 service = await server.getPrimaryService(SERVICE_UUID);
 
                 rxCharacteristic = await service.getCharacteristic(RX_CHAR_UUID);
@@ -895,46 +1168,40 @@ Ctrl+Enter for quick send"
                 await txCharacteristic.startNotifications();
                 txCharacteristic.addEventListener('characteristicvaluechanged', onDataReceived);
 
-                addLog(`${device.name} connected successfully!`, 'success');
-                updateStatus(`🟢 ${device.name} connected`, 'connected');
+                addLog(`✅ ${device.name} 연결 완료!`, 'success');
+                updateStatus(`🟢 ${device.name} 연결됨`, 'connected');
                 updateUI(true);
 
                 setTimeout(() => {
-                    sendDataToESP32(`SPEED:${currentTypingSpeed}`);
-                    addLog('Initial speed setting sent to ESP32', 'info');
+                    sendData(`SPEED:${currentTypingSpeed}`);
+                    addLog('초기 설정 전송 완료', 'info');
                 }, 500);
 
             } catch (error) {
-                addLog(`Connection failed: ${error.message}`, 'error');
-                updateStatus('🔴 Connection failed', 'disconnected');
+                addLog(`❌ 연결 실패: ${error.message}`, 'error');
+                updateStatus('🔴 연결 실패', 'disconnected');
                 console.error('Connection error:', error);
             }
         }
 
-        /**
-         * ESP32 연결 해제
-         */
+        // 연결 해제
         async function disconnectDevice() {
             if (device && device.gatt.connected) {
                 await device.gatt.disconnect();
-                addLog('Disconnected from ESP32', 'info');
+                addLog('연결 해제 완료', 'info');
             }
         }
 
-        /**
-         * ESP32로부터 데이터 수신 처리
-         */
+        // 데이터 수신
         function onDataReceived(event) {
             const value = new TextDecoder().decode(event.target.value);
-            addLog(`ESP32 response: "${value}"`, 'info');
+            addLog(`ESP32 응답: "${value}"`, 'info');
         }
 
-        /**
-         * 연결 해제 이벤트 처리
-         */
+        // 연결 해제 이벤트
         function onDisconnected() {
-            addLog('ESP32 disconnected', 'error');
-            updateStatus('🔴 Not connected to ESP32', 'disconnected');
+            addLog('ESP32 연결이 해제되었습니다', 'error');
+            updateStatus('🔴 ESP32와 연결되지 않음', 'disconnected');
             updateUI(false);
             
             device = null;
@@ -944,54 +1211,117 @@ Ctrl+Enter for quick send"
             txCharacteristic = null;
         }
 
-        /**
-         * ESP32로 BLE를 통해 원시 데이터 전송
-         */
-        async function sendDataToESP32(data) {
+        // 개선된 데이터 전송 함수 (기존과 동일)
+        async function sendData(text) {
             if (!rxCharacteristic || !isConnected) {
-                addLog('Not connected to ESP32', 'error');
+                addLog('❌ ESP32와 연결되지 않음', 'error');
                 return false;
             }
 
             try {
                 const encoder = new TextEncoder();
+                const useProtocol = document.getElementById('useProtocol').checked;
                 const packetSize = parseInt(document.getElementById('packetSize').value) || 80;
                 
-                const encodedData = encoder.encode(data);
-                const totalChunks = Math.ceil(encodedData.length / packetSize);
+                let dataToSend = text;
+                if (useProtocol && !text.startsWith('SPEED:')) {
+                    dataToSend = text + '<<END>>';
+                }
                 
-                addLog(`Sending to ESP32: ${data.length} chars → ${encodedData.length} bytes, ${totalChunks} packets`, 'info');
+                const data = encoder.encode(dataToSend);
+                const totalChunks = Math.ceil(data.length / packetSize);
                 
-                for (let i = 0; i < encodedData.length; i += packetSize) {
-                    const chunk = encodedData.slice(i, Math.min(i + packetSize, encodedData.length));
+                addLog(`전송 시작: ${text.length}자, ${data.length}bytes, ${totalChunks}패킷`, 'info');
+                
+                for (let i = 0; i < data.length; i += packetSize) {
+                    const chunk = data.slice(i, Math.min(i + packetSize, data.length));
                     const chunkNum = Math.floor(i / packetSize) + 1;
                     
                     await rxCharacteristic.writeValue(chunk);
                     
-                    const progress = Math.round((i + chunk.length) / encodedData.length * 100);
+                    const progress = Math.round((i + chunk.length) / data.length * 100);
                     showTransmissionStatus(true, progress, 
-                        `Packet ${chunkNum}/${totalChunks} transmitting...`);
+                        `패킷 ${chunkNum}/${totalChunks} 전송 중...`, false);
                     
-                    if (i + packetSize < encodedData.length) {
+                    if (i + packetSize < data.length) {
                         await new Promise(resolve => setTimeout(resolve, 30));
                     }
                 }
                 
-                addLog(`Transmission complete: ${totalChunks} packets sent`, 'success');
+                addLog(`✅ 전송 완료: ${totalChunks}개 패킷`, 'success');
                 showTransmissionStatus(false);
                 return true;
                 
             } catch (error) {
-                addLog(`Transmission failed: ${error.message}`, 'error');
+                addLog(`❌ 전송 실패: ${error.message}`, 'error');
                 showTransmissionStatus(false);
                 console.error('Send error:', error);
                 return false;
             }
         }
 
-        /**
-         * 전송 전 카운트다운 모달 표시
-         */
+        // 파일 전송 함수
+        async function sendFiles() {
+            if (selectedFiles.length === 0) {
+                addLog('⚠️ 전송할 파일이 없습니다', 'warning');
+                return;
+            }
+
+            const validFiles = selectedFiles.filter(f => f.isValid);
+            if (validFiles.length === 0) {
+                addLog('⚠️ 유효한 파일이 없습니다', 'warning');
+                return;
+            }
+
+            if (isTransmitting) {
+                addLog('⚠️ 이미 전송 중입니다', 'warning');
+                return;
+            }
+
+            const useCountdown = document.getElementById('useCountdown').checked;
+            const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
+
+            try {
+                isTransmitting = true;
+                updateUI(true);
+
+                // 파일 데이터 구성
+                let filesData = '<<FILES_START>>\n';
+                validFiles.forEach(fileObj => {
+                    filesData += `FILE:${fileObj.fullName}:${fileObj.content}\n`;
+                });
+                filesData += '<<FILES_END>>';
+
+                addLog(`📁 ${validFiles.length}개 파일 전송 준비 완료`, 'info');
+
+                if (useCountdown) {
+                    addLog(`⏰ ${countdownSeconds}초 카운트다운 시작`, 'info');
+                    await showCountdown(filesData.substring(0, 200) + '...', countdownSeconds);
+                }
+
+                const startTime = Date.now();
+                showTransmissionStatus(true, 0, '파일 데이터 전송 중...', true);
+
+                const success = await sendData(filesData);
+
+                if (success) {
+                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                    addLog(`✅ 파일 전송 완료: ${validFiles.length}개 파일, ${duration}초 소요`, 'success');
+                    showTransmissionStatus(false, 0, '', true);
+                }
+
+            } catch (error) {
+                if (error !== 'cancelled') {
+                    addLog(`❌ 파일 전송 오류: ${error}`, 'error');
+                }
+                showTransmissionStatus(false, 0, '', true);
+            } finally {
+                isTransmitting = false;
+                updateUI(true);
+            }
+        }
+
+        // 카운트다운 표시 (기존과 동일)
         function showCountdown(text, seconds) {
             return new Promise((resolve, reject) => {
                 const modal = document.getElementById('countdownModal');
@@ -999,8 +1329,7 @@ Ctrl+Enter for quick send"
                 const previewEl = document.getElementById('countdownTextPreview');
                 
                 modal.style.display = 'flex';
-                const previewText = text.length > 200 ? text.substring(0, 200) + '...' : text;
-                previewEl.textContent = previewText;
+                previewEl.textContent = text.substring(0, 200) + (text.length > 200 ? '...' : '');
                 
                 let count = seconds;
                 
@@ -1029,29 +1358,26 @@ Ctrl+Enter for quick send"
             });
         }
 
-        /**
-         * 카운트다운 취소
-         */
+        // 카운트다운 취소
         function cancelCountdown() {
             if (window.cancelCountdownHandler) {
                 window.cancelCountdownHandler();
             }
-            addLog('Transmission cancelled by user', 'info');
+            addLog('⏸️ 전송 취소됨', 'info');
         }
 
-        /**
-         * Base64 인코딩과 선택적 카운트다운으로 텍스트 전송
-         */
+        // 텍스트 전송 (기존과 동일)
         async function sendText() {
             if (isTransmitting) {
-                addLog('Already transmitting', 'warning');
+                addLog('⚠️ 이미 전송 중입니다', 'warning');
                 return;
             }
             
-            const originalText = document.getElementById('textInput').value;
+            const textarea = document.getElementById('textInput');
+            let text = textarea.value;
             
-            if (!originalText.trim()) {
-                addLog('Please enter text to send', 'error');
+            if (!text) {
+                addLog('⚠️ 텍스트를 입력하세요', 'error');
                 return;
             }
             
@@ -1062,73 +1388,60 @@ Ctrl+Enter for quick send"
                 isTransmitting = true;
                 updateUI(true);
                 
-                const encodingResult = encodeToBase64(originalText);
-                
-                if (!encodingResult.success) {
-                    addLog(`Base64 encoding failed: ${encodingResult.error}`, 'error');
-                    return;
-                }
-                
-                const base64Text = encodingResult.encoded;
-                
-                addLog(`Processing: "${originalText.substring(0, 50)}${originalText.length > 50 ? '...' : ''}"`, 'info');
-                addLog(`Base64 expansion: ${encodingResult.originalLength} → ${encodingResult.encodedLength} chars (${encodingResult.expansionRatio}x)`, 'info');
-                
-                if (base64Text.length > 10000) {
-                    addLog(`Large Base64 text detected: ${base64Text.length} characters`, 'warning');
-                    addLog('Auto-chunking mode activated', 'info');
+                if (text.length > 10000) {
+                    addLog(`⚠️ 매우 긴 텍스트 감지: ${text.length}자`, 'warning');
+                    addLog('자동 분할 전송 모드 활성화', 'info');
                     
                     const chunkSize = 8000;
-                    const totalChunks = Math.ceil(base64Text.length / chunkSize);
+                    const totalChunks = Math.ceil(text.length / chunkSize);
                     
-                    for (let i = 0; i < base64Text.length; i += chunkSize) {
-                        const chunk = base64Text.slice(i, Math.min(i + chunkSize, base64Text.length));
+                    for (let i = 0; i < text.length; i += chunkSize) {
+                        const chunk = text.slice(i, Math.min(i + chunkSize, text.length));
                         const chunkNum = Math.floor(i / chunkSize) + 1;
                         
-                        addLog(`Sending chunk ${chunkNum}/${totalChunks} (${chunk.length} chars)`, 'info');
+                        addLog(`청크 ${chunkNum}/${totalChunks} 전송 중 (${chunk.length}자)`, 'info');
                         
                         if (useCountdown && chunkNum === 1) {
-                            await showCountdown(`Base64 Chunk ${chunkNum}`, countdownSeconds);
+                            await showCountdown(chunk.substring(0, 100) + '...', countdownSeconds);
                         }
                         
                         const startTime = Date.now();
-                        const success = await sendDataToESP32(chunk);
+                        const success = await sendData(chunk);
                         
                         if (success) {
                             const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                            addLog(`Chunk ${chunkNum} completed: ${duration}s`, 'success');
+                            addLog(`✅ 청크 ${chunkNum} 완료: ${duration}초`, 'success');
                             
                             if (chunkNum < totalChunks) {
-                                addLog('Waiting for ESP32 processing... (2s)', 'info');
+                                addLog('ESP32 처리 대기 중... (2초)', 'info');
                                 await new Promise(resolve => setTimeout(resolve, 2000));
                             }
                         } else {
-                            addLog(`Chunk ${chunkNum} transmission failed`, 'error');
+                            addLog(`❌ 청크 ${chunkNum} 전송 실패`, 'error');
                             break;
                         }
                     }
                     
-                    addLog(`Complete transmission finished: ${originalText.length} chars → ${base64Text.length} Base64 chars`, 'success');
+                    addLog(`✅ 전체 전송 완료: ${text.length}자`, 'success');
                     
                 } else {
                     if (useCountdown) {
-                        addLog(`${countdownSeconds}s countdown starting`, 'info');
-                        await showCountdown(originalText, countdownSeconds);
+                        addLog(`⏰ ${countdownSeconds}초 카운트다운 시작`, 'info');
+                        await showCountdown(text, countdownSeconds);
                     }
                     
                     const startTime = Date.now();
-                    const success = await sendDataToESP32(base64Text);
+                    const success = await sendData(text);
                     
                     if (success) {
                         const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                        addLog(`Base64 text sent to PC1: ${originalText.length} chars → ${base64Text.length} Base64 chars, ${duration}s elapsed`, 'success');
-                        addLog('Use the decoder on PC1 to convert back to original text', 'info');
+                        addLog(`✅ PC1에 입력 완료: ${text.length}자, ${duration}초 소요`, 'success');
                     }
                 }
                 
             } catch (error) {
                 if (error !== 'cancelled') {
-                    addLog(`Error: ${error}`, 'error');
+                    addLog(`❌ 오류: ${error}`, 'error');
                 }
             } finally {
                 isTransmitting = false;
@@ -1136,92 +1449,15 @@ Ctrl+Enter for quick send"
             }
         }
 
-        /**
-         * 개선된 Base64 디코더를 PC1에 직접 전송 (디코딩된 HTML)
-         * 청크들을 디코딩해서 원본 HTML 파일 내용을 그대로 전송
-         */
-        async function sendDecoder() {
-            if (!isConnected) {
-                addLog('Please connect to ESP32 first', 'error');
-                return;
-            }
-            
-            if (isTransmitting) {
-                addLog('Already transmitting', 'warning');
-                return;
-            }
-            
-            try {
-                isTransmitting = true;
-                updateUI(true);
-                
-                addLog('Starting decoder HTML transmission...', 'info');
-                addLog(`Decoder metadata: ${DECODER_METADATA.totalChunks} chunks, ${DECODER_METADATA.fileName}`, 'info');
-                
-                const useCountdown = document.getElementById('useCountdown').checked;
-                const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
-                
-                if (useCountdown) {
-                    addLog(`${countdownSeconds}s countdown starting`, 'info');
-                    await showCountdown(`Decoder HTML: ${DECODER_METADATA.description}`, countdownSeconds);
-                }
-                
-                // 청크들을 디코딩해서 원본 HTML 재구성
-                let decodedHtml = '';
-                
-                addLog('Decoding pre-encoded chunks to original HTML...', 'info');
-                for (let i = 0; i < DECODER_CHUNKS.length; i++) {
-                    try {
-                        const decodedChunk = atob(DECODER_CHUNKS[i]);
-                        decodedHtml += decodedChunk;
-                        
-                        if ((i + 1) % 5 === 0 || i === DECODER_CHUNKS.length - 1) {
-                            addLog(`Decoded chunks ${Math.max(1, i - 3)} to ${i + 1}`, 'info');
-                        }
-                    } catch (error) {
-                        throw new Error(`Chunk ${i + 1} decoding failed: ${error.message}`);
-                    }
-                }
-                
-                addLog(`All chunks decoded: ${decodedHtml.length} characters of HTML`, 'success');
-                addLog('Sending decoded HTML directly to PC1 (ready to save as .html file)...', 'info');
-                
-                // 디코딩된 HTML을 직접 ESP32로 전송 (Base64 인코딩 하지 않음)
-                const startTime = Date.now();
-                const success = await sendDataToESP32(decodedHtml);
-                
-                if (success) {
-                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                    addLog(`Decoder HTML transmission completed! (${duration}s elapsed)`, 'success');
-                    addLog(`Next steps on PC1:`, 'info');
-                    addLog(`   1. Copy the received HTML text`, 'info');
-                    addLog(`   2. Save as '${DECODER_METADATA.fileName}'`, 'info');
-                    addLog(`   3. Open in browser to decode Base64 text`, 'info');
-                } else {
-                    throw new Error('ESP32 decoder HTML transmission failed');
-                }
-                
-            } catch (error) {
-                if (error !== 'cancelled') {
-                    addLog(`Decoder transmission error: ${error}`, 'error');
-                }
-            } finally {
-                isTransmitting = false;
-                updateUI(true);
-            }
-        }
-
-        /**
-         * 테스트 버튼용 빠른 전송
-         */
+        // 빠른 전송 (기존과 동일)
         async function quickSend(text) {
             if (!isConnected) {
-                addLog('Please connect to ESP32 first', 'error');
+                addLog('❌ 먼저 ESP32와 연결하세요', 'error');
                 return;
             }
             
             if (isTransmitting) {
-                addLog('Already transmitting', 'warning');
+                addLog('⚠️ 이미 전송 중입니다', 'warning');
                 return;
             }
             
@@ -1232,20 +1468,14 @@ Ctrl+Enter for quick send"
                 isTransmitting = true;
                 updateUI(true);
                 
-                const encodingResult = encodeToBase64(text);
-                
-                if (!encodingResult.success) {
-                    addLog(`Quick test encoding failed: ${encodingResult.error}`, 'error');
-                    return;
-                }
-                
-                addLog(`Quick test: "${text}" → Base64 (${encodingResult.encodedLength} chars)`, 'info');
-                
                 if (useCountdown) {
+                    addLog(`빠른 테스트: "${text}" (${countdownSeconds}초 후)`, 'info');
                     await showCountdown(text, countdownSeconds);
+                } else {
+                    addLog(`빠른 테스트: "${text}" (즉시)`, 'info');
                 }
                 
-                await sendDataToESP32(encodingResult.encoded);
+                await sendData(text);
                 
             } catch (error) {
                 if (error !== 'cancelled') {
@@ -1257,13 +1487,14 @@ Ctrl+Enter for quick send"
             }
         }
 
-        // 향상된 사용자 경험을 위한 이벤트 리스너
+        // Enter 키로 전송
         document.getElementById('textInput').addEventListener('keydown', function(e) {
             if (e.ctrlKey && e.key === 'Enter') {
                 sendText();
             }
         });
- 
+
+        // ESC 키로 카운트다운 취소
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 cancelCountdown();
@@ -1272,20 +1503,19 @@ Ctrl+Enter for quick send"
 
         // Web Bluetooth 지원 확인
         if (!navigator.bluetooth) {
-            addLog('This browser does not support Web Bluetooth', 'error');
-            addLog('Please use Chrome or Edge browser', 'error');
-            updateStatus('🚫 Web Bluetooth not supported', 'disconnected');
+            addLog('❌ 이 브라우저는 Web Bluetooth를 지원하지 않습니다', 'error');
+            addLog('Chrome 또는 Edge 브라우저를 사용하세요', 'error');
+            updateStatus('🚫 Web Bluetooth 미지원', 'disconnected');
             document.getElementById('connectBtn').disabled = true;
         } else {
-            addLog('Web Bluetooth support confirmed', 'success');
-            addLog('Simple Base64 encoding system ready', 'info');
-            addLog('Click Connect ESP32 button to start', 'info');
+            addLog('✅ Web Bluetooth 지원 확인', 'success');
+            addLog('ESP32 연결 버튼을 클릭하세요', 'info');
         }
 
-        // UI 초기화
+        // 초기 상태
         updateUI(false);
         updateCharCount();
-        updatePreview();
+        setupDragAndDrop();
     </script>
 </body>
 </html>
