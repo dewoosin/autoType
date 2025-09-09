@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GHOSTYPE Sender v3.1 (Improved Base64)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #4caf50;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .info-banner {
+            background: linear-gradient(145deg, #e8f5e9, #c8e6c9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4caf50;
+        }
+
+        .info-title {
+            font-weight: bold;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .info-text {
+            color: #388e3c;
+            line-height: 1.4;
+        }
+
+        .status-bar {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .status-bar.disconnected {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status-bar.connecting {
+            background: #fff3e0;
+            color: #e65100;
+            animation: pulse 1s infinite;
+        }
+
+        .status-bar.connected {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .settings-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .settings-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .setting-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+
+        .setting-row label {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .speed-selector {
+            display: flex;
+            gap: 10px;
+        }
+
+        .speed-btn {
+            padding: 8px 16px;
+            font-size: 0.9em;
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .speed-btn.active {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+        }
+
+        .countdown-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        input[type="number"] {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .input-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-family: 'Courier New', monospace;
+            min-height: 120px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .char-count {
+            text-align: right;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .send-button {
+            width: 100%;
+            margin-top: 15px;
+            padding: 15px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #4caf50, #45a049);
+        }
+
+        .send-button:hover:not(:disabled) {
+            background: linear-gradient(45deg, #45a049, #4caf50);
+        }
+
+        .decoder-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 15px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #ff9800, #ff6b00);
+        }
+
+        .decoder-button:hover:not(:disabled) {
+            background: linear-gradient(45deg, #ff6b00, #ff9800);
+        }
+
+        .preview-section {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .preview-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .preview-content {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            word-break: break-all;
+            max-height: 100px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+
+        .encoding-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-box {
+            background: #e3f2fd;
+            padding: 8px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        .test-section {
+            margin-bottom: 20px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .test-btn {
+            padding: 10px;
+            font-size: 0.9em;
+            background: linear-gradient(45deg, #ff9800, #ff6b00);
+        }
+
+        .test-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #ff6b00, #ff9800);
+        }
+
+        .countdown-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .countdown-content {
+            text-align: center;
+            color: white;
+        }
+
+        .countdown-number {
+            font-size: 8em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+            animation: countdownPulse 1s ease-in-out infinite;
+            margin: 20px 0;
+        }
+
+        @keyframes countdownPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .countdown-message {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        .countdown-text-preview {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px;
+            font-family: 'Courier New', monospace;
+            max-width: 600px;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .cancel-countdown-btn {
+            background: #dc3545;
+            padding: 15px 30px;
+            margin-top: 20px;
+        }
+
+        .transmission-status {
+            display: none;
+            padding: 10px;
+            background: #e1f5fe;
+            border: 2px solid #0288d1;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .transmission-status.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4caf50, #8bc34a);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .log {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 10px;
+            max-height: 250px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid transparent;
+        }
+
+        .log-info {
+            border-left-color: #64b5f6;
+            color: #90caf9;
+        }
+
+        .log-success {
+            border-left-color: #81c784;
+            color: #a5d6a7;
+        }
+
+        .log-error {
+            border-left-color: #e57373;
+            color: #ef9a9a;
+        }
+
+        .log-warning {
+            border-left-color: #ffb74d;
+            color: #ffe082;
+        }
+
+        .info-box {
+            background: linear-gradient(145deg, #e3f2fd, #bbdefb);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: #1565c0;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-box ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .info-box li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+        }
+
+        .info-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #1565c0;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .test-grid {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            }
+
+            .speed-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📡 GHOSTYPE <span class="version-badge">v3.1</span></div>
+            <div class="subtitle">Improved Base64 Remote Keyboard System</div>
+        </div>
+
+        <div class="info-banner">
+            <div class="info-title">🎯 Enhanced Pre-encoded Decoder System</div>
+            <div class="info-text">
+                All text is automatically Base64 encoded for 100% ESP32 compatibility. 
+                The decoder is now pre-encoded for faster, more reliable transmission.
+            </div>
+        </div>
+
+        <div id="status" class="status-bar disconnected">
+            🔴 Not connected to ESP32
+        </div>
+
+        <div class="controls">
+            <button id="connectBtn" onclick="connectDevice()">🔗 Connect ESP32</button>
+            <button id="disconnectBtn" onclick="disconnectDevice()" disabled>⚡ Disconnect</button>
+            <button onclick="clearLog()">🗑️ Clear Log</button>
+            <button onclick="clearText()">📄 Clear Text</button>
+        </div>
+
+        <div class="settings-section">
+            <h3>⚙️ Transmission Settings</h3>
+            
+            <div class="setting-row">
+                <label>⚡ Typing Speed on PC1:</label>
+                <div class="speed-selector">
+                    <button class="speed-btn" onclick="setSpeed(0)" data-speed="0">Slow</button>
+                    <button class="speed-btn active" onclick="setSpeed(1)" data-speed="1">Normal</button>
+                    <button class="speed-btn" onclick="setSpeed(2)" data-speed="2">Fast</button>
+                    <button class="speed-btn" onclick="setSpeed(3)" data-speed="3">Instant</button>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <label>⏰ Countdown Timer:</label>
+                <div class="countdown-control">
+                    <input type="checkbox" id="useCountdown" checked>
+                    <label for="useCountdown">Enable</label>
+                    <input type="number" id="countdownSeconds" min="1" max="10" value="3">
+                    <span>seconds</span>
+                </div>
+            </div>
+            
+            <div class="setting-row">
+                <label>📦 Transmission Packet Size:</label>
+                <div class="countdown-control">
+                    <input type="number" id="packetSize" min="20" max="200" value="80">
+                    <span>bytes (Recommended: 80)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h3>⌨️ Text to Send to PC1</h3>
+            <textarea 
+                id="textInput" 
+                placeholder="Enter any text here - Korean, English, numbers, special characters, emojis...
+Everything will be automatically Base64 encoded for safe transmission!
+
+Examples:
+- Hello World!
+- 안녕하세요!
+- Mixed text: Hello 안녕 World 세계 123 !@#$%
+- Emojis: 🎉💖🚀🌟
+
+Ctrl+Enter for quick send"
+                oninput="updateCharCount(); updatePreview();"
+            ></textarea>
+            <div class="char-count" id="charCount">0 characters</div>
+            
+            <!-- Base64 encoding preview -->
+            <div class="preview-section" id="encodingPreview" style="display: none;">
+                <div class="preview-title">📡 Base64 Encoded Preview (What ESP32 will transmit)</div>
+                <div class="preview-content" id="previewContent"></div>
+                <div class="encoding-stats" id="encodingStats"></div>
+            </div>
+            
+            <div class="transmission-status" id="transmissionStatus">
+                <strong>Transmitting to ESP32...</strong>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div id="transmissionInfo"></div>
+            </div>
+            
+            <button class="send-button" id="sendBtn" onclick="sendText()" disabled>
+                📤 Send Text to PC1 via ESP32
+            </button>
+            
+            <button class="decoder-button" id="sendDecoderBtn" onclick="sendDecoder()" disabled>
+                🛠️ Send Base64 Decoder to PC1
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Quick Test Buttons</h3>
+            <div class="test-grid">
+                <button class="test-btn" onclick="quickSend('Hello World! 👋')" disabled>Hello World!</button>
+                <button class="test-btn" onclick="quickSend('안녕하세요! 🇰🇷')" disabled>Korean Test</button>
+                <button class="test-btn" onclick="quickSend('Mixed: Hello 안녕 World 세계')" disabled>Mixed Text</button>
+                <button class="test-btn" onclick="quickSend('Special: !@#$%^&*()')" disabled>Special Chars</button>
+                <button class="test-btn" onclick="quickSend('Numbers: 1234567890')" disabled>Numbers</button>
+                <button class="test-btn" onclick="quickSend('Emojis: 🎉💖🚀🌟⭐')" disabled>Emojis</button>
+            </div>
+        </div>
+
+        <div class="countdown-modal" id="countdownModal">
+            <div class="countdown-content">
+                <div class="countdown-message">Make sure PC1 input field is ready!</div>
+                <div class="countdown-number" id="countdownNumber">3</div>
+                <div class="countdown-text-preview" id="countdownTextPreview"></div>
+                <button class="cancel-countdown-btn" onclick="cancelCountdown()">Cancel (ESC)</button>
+            </div>
+        </div>
+
+        <div class="log" id="log">
+            <div class="log-entry log-info">[System] GHOSTYPE v3.1 ready - Improved Base64 encoding system</div>
+        </div>
+
+        <div class="info-box">
+            <h4>📋 How It Works</h4>
+            <ul>
+                <li><strong>Step 1:</strong> Type any text (Korean, English, emojis, special characters)</li>
+                <li><strong>Step 2:</strong> Text is automatically Base64 encoded (100% ASCII safe)</li>
+                <li><strong>Step 3:</strong> ESP32 receives and transmits the Base64 string via HID</li>
+                <li><strong>Step 4:</strong> PC1 receives the Base64 string</li>
+                <li><strong>Step 5:</strong> Use the decoder to convert back to original text</li>
+                <li><strong>Decoder Setup:</strong> Click "Send Base64 Decoder" once to setup PC1</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // src/test_v3_improved.html - 개선된 Base64 인코딩 시스템
+        
+        // BLE 설정 상수
+        const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
+        const RX_CHAR_UUID = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
+        const TX_CHAR_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e';
+
+        // 전역 상태 변수
+        let device = null;
+        let server = null;
+        let service = null;
+        let rxCharacteristic = null;
+        let txCharacteristic = null;
+        let isConnected = false;
+        let countdownTimer = null;
+        let currentTypingSpeed = 1;
+        let isTransmitting = false;
+
+        /**
+         * 실제 ghostype_decoder_v3.html 파일을 Base64로 인코딩한 청크들
+         * 파일 크기를 고려하여 20개의 청크로 분할
+         * 각 청크는 ESP32가 안정적으로 처리할 수 있는 크기(약 2000자)로 최적화
+         */
+        const DECODER_CHUNKS = [
+            "PCEtLSBzcmMvZ2hvc3R5cGVfZGVjb2Rlcl9taW5pbWFsLmh0bWwgLS0+DQo8IURPQ1RZUEUgaHRtbD4NCjxodG1sPg0KPGhlYWQ+DQogICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiPg0KICAgIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4NCiAgICA8dGl0bGU+R0hPU1RZUEUgRGVjb2RlcjwvdGl0bGU+DQogICAgPHN0eWxlPg0KICAgICAgICAqIHsgbWFyZ2luOiAwOyBwYWRkaW5nOiAwOyBib3gtc2l6aW5nOiBib3JkZXItYm94OyB9DQogICAgICAgIGJvZHkgew0KICAgICAgICAgICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgc2Fucy1zZXJpZjsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCgxMzVkZWcsICM2NjdlZWEsICM3NjRiYTIpOw0KICAgICAgICAgICAgbWluLWhlaWdodDogMTAwdmg7DQogICAgICAgICAgICBkaXNwbGF5OiBmbGV4Ow0KICAgICAgICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7DQogICAgICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyOw0KICAgICAgICAgICAgcGFkZGluZzogMjBweDsNCiAgICAgICAgfQ0KICAgICAgICAuY29udGFpbmVyIHsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IHdoaXRlOw0KICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMjBweDsNCiAgICAgICAgICAgIHBhZGRpbmc6IDMwcHg7DQogICAgICAgICAgICBib3gtc2hhZG93OiAwIDIwcHggNDBweCByZ2JhKDAsMCwwLDAuMSk7DQogICAgICAgICAgICB3aWR0aDogMTAwJTsNCiAgICAgICAgICAgIG1heC13aWR0aDogOTAwcHg7DQogICAgICAgIH0NCiAgICAgICAgLmhlYWRlciB7DQogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICAgICAgICBtYXJnaW4tYm90dG9tOiAzMHB4Ow0KICAgICAgICB9DQogICAgICAgIC5sb2dvIHsNCiAgICAgICAgICAgIGZvbnQtc2l6ZTogMi41ZW07DQogICAgICAgICAgICBmb250LXdlaWdodDogYm9sZDsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg0NWRlZywgIzY2N2VlYSwgIzc2NGJhMik7DQogICAgICAgICAgICAtd2Via2l0LWJhY2tncm91bmQtY2xpcDogdGV4dDsNCiAgICAgICAgICAgIGJhY2tncm91bmQtY2xpcDogdGV4dDsNCiAgICAgICAgICAgIC13ZWJraXQtdGV4dC1maWxsLWNvbG9yOiB0cmFuc3BhcmVudDsNCg==",
+            "ICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMTBweDsNCiAgICAgICAgfQ0KICAgICAgICAuc3VidGl0bGUgeyBjb2xvcjogIzY2NjsgZm9udC1zaXplOiAxLjFlbTsgfQ0KICAgICAgICAuZGVjb2RlciB7DQogICAgICAgICAgICBkaXNwbGF5OiBncmlkOw0KICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiAxZnIgMWZyOw0KICAgICAgICAgICAgZ2FwOiAyMHB4Ow0KICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMjBweDsNCiAgICAgICAgfQ0KICAgICAgICAuZ3JvdXAgeyBkaXNwbGF5OiBmbGV4OyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyB9DQogICAgICAgIC5sYWJlbCB7DQogICAgICAgICAgICBmb250LXNpemU6IDEuMWVtOw0KICAgICAgICAgICAgZm9udC13ZWlnaHQ6IGJvbGQ7DQogICAgICAgICAgICBjb2xvcjogIzMzMzsNCiAgICAgICAgICAgIG1hcmdpbi1ib3R0b206IDEwcHg7DQogICAgICAgIH0NCiAgICAgICAgdGV4dGFyZWEgew0KICAgICAgICAgICAgd2lkdGg6IDEwMCU7DQogICAgICAgICAgICBoZWlnaHQ6IDI1MHB4Ow0KICAgICAgICAgICAgcGFkZGluZzogMTVweDsNCiAgICAgICAgICAgIGJvcmRlcjogMnB4IHNvbGlkICNkZGQ7DQogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAxMHB4Ow0KICAgICAgICAgICAgZm9udC1zaXplOiAxNHB4Ow0KICAgICAgICAgICAgZm9udC1mYW1pbHk6ICdDb3VyaWVyIE5ldycsIG1vbm9zcGFjZTsNCiAgICAgICAgICAgIHJlc2l6ZTogdmVydGljYWw7DQogICAgICAgIH0NCiAgICAgICAgdGV4dGFyZWE6Zm9jdXMgew0KICAgICAgICAgICAgb3V0bGluZTogbm9uZTsNCiAgICAgICAgICAgIGJvcmRlci1jb2xvcjogIzY2N2VlYTsNCiAgICAgICAgICAgIGJveC1zaGFkb3c6IDAgMCAwIDNweCByZ2JhKDEwMiwgMTI2LCAyMzQsIDAuMSk7DQogICAgICAgIH0NCiAgICAgICAgLmlucHV0IHsgYmFja2dyb3VuZDogI2Y4ZjlmYTsgfQ0KICAgICAgICAub3V0cHV0IHsgYmFja2dyb3VuZDogI2U4ZjVlODsgfQ0KICAgICAgICAuYnV0dG9ucyB7DQogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICAgICAgICBtYXJnaW4tdG9wOiAyMHB4Ow0KICAgICAgICB9DQogICAgICAgIGJ1dHRvbiB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoNDVkZWcsICM2NjdlZWEsICM3NjRiYTIpOw0KICAgICAgICAgICAgY29sb3I6IHdoaXRlOw0KICAgICAgICAgICAgYg==",
+            "b3JkZXI6IG5vbmU7DQogICAgICAgICAgICBwYWRkaW5nOiAxMnB4IDMwcHg7DQogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAyNXB4Ow0KICAgICAgICAgICAgZm9udC1zaXplOiAxZW07DQogICAgICAgICAgICBmb250LXdlaWdodDogNjAwOw0KICAgICAgICAgICAgY3Vyc29yOiBwb2ludGVyOw0KICAgICAgICAgICAgdHJhbnNpdGlvbjogYWxsIDAuM3M7DQogICAgICAgICAgICBtYXJnaW46IDAgMTBweDsNCiAgICAgICAgfQ0KICAgICAgICBidXR0b246aG92ZXI6bm90KDpkaXNhYmxlZCkgew0KICAgICAgICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0ycHgpOw0KICAgICAgICAgICAgYm94LXNoYWRvdzogMCAxMHB4IDIwcHggcmdiYSgwLDAsMCwwLjIpOw0KICAgICAgICB9DQogICAgICAgIGJ1dHRvbjpkaXNhYmxlZCB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiAjY2NjOw0KICAgICAgICAgICAgY3Vyc29yOiBub3QtYWxsb3dlZDsNCiAgICAgICAgICAgIG9wYWNpdHk6IDAuNjsNCiAgICAgICAgICAgIHRyYW5zZm9ybTogbm9uZTsNCiAgICAgICAgICAgIGJveC1zaGFkb3c6IG5vbmU7DQogICAgICAgIH0NCiAgICAgICAgLmNvcHkgeyBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoNDVkZWcsICM0Y2FmNTAsICM0NWEwNDkpOyB9DQogICAgICAgIC5jbGVhciB7IGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg0NWRlZywgI2ZmOTgwMCwgI2ZmNmIwMCk7IH0NCiAgICAgICAgQG1lZGlhIChtYXgtd2lkdGg6IDc2OHB4KSB7DQogICAgICAgICAgICAuY29udGFpbmVyIHsgcGFkZGluZzogMjBweDsgfQ0KICAgICAgICAgICAgLmRlY29kZXIgeyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDFmcjsgZ2FwOiAxNXB4OyB9DQogICAgICAgICAgICB0ZXh0YXJlYSB7IGhlaWdodDogMTgwcHg7IH0NCiAgICAgICAgICAgIGJ1dHRvbiB7IHdpZHRoOiAxMDAlOyBtYXJnaW46IDVweCAwOyB9DQogICAgICAgIH0NCiAgICA8L3N0eWxlPg0KPC9oZWFkPg0KPGJvZHk+DQogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4NCiAgICAgICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4NCiAgICAgICAgICAgIDxkaXYgY2xhc3M9ImxvZ28iPkdIT1NUWVBFPC9kaXY+DQogICAgICAgICAgICA8ZGl2IGNsYXNzPSJzdWJ0aXRsZSI+QmFzZTY0IERlY29kZXI8L2Rpdj4NCiAgICAgICAgPC9kaXY+DQogICAgICAgIDxkaXYgY2xhc3M9ImRlY29kZXIiPg0KICAgICAgICAgICAgPGRpdg==",
+            "IGNsYXNzPSJncm91cCI+DQogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ibGFiZWwiPkJhc2U2NCBJbnB1dDwvZGl2Pg0KICAgICAgICAgICAgICAgIDx0ZXh0YXJlYSBpZD0iaW5wdXQiIGNsYXNzPSJpbnB1dCIgcGxhY2Vob2xkZXI9IlBhc3RlIEJhc2U2NCB0ZXh0IGhlcmUuLi4iPjwvdGV4dGFyZWE+DQogICAgICAgICAgICA8L2Rpdj4NCiAgICAgICAgICAgIDxkaXYgY2xhc3M9Imdyb3VwIj4NCiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPSJsYWJlbCI+RGVjb2RlZCBPdXRwdXQ8L2Rpdj4NCiAgICAgICAgICAgICAgICA8dGV4dGFyZWEgaWQ9Im91dHB1dCIgY2xhc3M9Im91dHB1dCIgcGxhY2Vob2xkZXI9IkRlY29kZWQgdGV4dCB3aWxsIGFwcGVhciBoZXJlLi4uIiByZWFkb25seT48L3RleHRhcmVhPg0KICAgICAgICAgICAgPC9kaXY+DQogICAgICAgIDwvZGl2Pg0KICAgICAgICA8ZGl2IGNsYXNzPSJidXR0b25zIj4NCiAgICAgICAgICAgIDxidXR0b24gb25jbGljaz0iZGVjb2RlKCkiPkRlY29kZTwvYnV0dG9uPg0KICAgICAgICAgICAgPGJ1dHRvbiBvbmNsaWNrPSJjb3B5KCkiIGNsYXNzPSJjb3B5IiBpZD0iY29weUJ0biIgZGlzYWJsZWQ+IENvcHk8L2J1dHRvbj4NCiAgICAgICAgICAgIDxidXR0b24gb25jbGljaz0iY2xlYXIoKSIgY2xhc3M9ImNsZWFyIj5DbGVhcjwvYnV0dG9uPg0KICAgICAgICA8L2Rpdj4NCiAgICA8L2Rpdj4NCiAgICA8c2NyaXB0Pg0KICAgICAgICBmdW5jdGlvbiBkZWNvZGUoKSB7DQogICAgICAgICAgICBjb25zdCBpbnB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdpbnB1dCcpLnZhbHVlLnRyaW0oKTsNCiAgICAgICAgICAgIGNvbnN0IG91dHB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdvdXRwdXQnKTsNCiAgICAgICAgICAgIGNvbnN0IGNvcHlCdG4gPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29weUJ0bicpOw0KICAgICAgICAgICAgDQogICAgICAgICAgICBpZiAoIWlucHV0KSB7DQogICAgICAgICAgICAgICAgYWxlcnQoJ1BsZWFzZSBlbnRlciBCYXNlNjQgdGV4dC4nKTsNCiAgICAgICAgICAgICAgICByZXR1cm47DQogICAgICAgICAgICB9DQogICAgICAgICAgICANCiAgICAgICAgICAgIHRyeSB7DQogICAgICAgICAgICAgICAgY29uc3QgY2xlYW4gPSBpbnB1dC5yZXBsYWNlKC9ccy9nLCAnJyk7DQogICAgICAgICAgICAgICAgY29uc3QgZGVjb2RlZCA9IGRlY29kZVVSSUNvbXBvbmVu",
+            "dChlc2NhcGUoYXRvYihjbGVhbikpKTsNCiAgICAgICAgICAgICAgICBvdXRwdXQudmFsdWUgPSBkZWNvZGVkOw0KICAgICAgICAgICAgICAgIGNvcHlCdG4uZGlzYWJsZWQgPSBmYWxzZTsNCiAgICAgICAgICAgIH0gY2F0Y2ggKGVycm9yKSB7DQogICAgICAgICAgICAgICAgYWxlcnQoJ0ludmFsaWQgQmFzZTY0IGZvcm1hdC4nKTsNCiAgICAgICAgICAgICAgICBvdXRwdXQudmFsdWUgPSAnJzsNCiAgICAgICAgICAgICAgICBjb3B5QnRuLmRpc2FibGVkID0gdHJ1ZTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZnVuY3Rpb24gY29weSgpIHsNCiAgICAgICAgICAgIGNvbnN0IG91dHB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdvdXRwdXQnKTsNCiAgICAgICAgICAgIGlmICghb3V0cHV0LnZhbHVlLnRyaW0oKSkgew0KICAgICAgICAgICAgICAgIGFsZXJ0KCdObyB0ZXh0IHRvIGNvcHkuJyk7DQogICAgICAgICAgICAgICAgcmV0dXJuOw0KICAgICAgICAgICAgfQ0KICAgICAgICAgICAgb3V0cHV0LnNlbGVjdCgpOw0KICAgICAgICAgICAgZG9jdW1lbnQuZXhlY0NvbW1hbmQoJ2NvcHknKTsNCiAgICAgICAgICAgIGFsZXJ0KCdUZXh0IGNvcGllZCEnKTsNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZnVuY3Rpb24gY2xlYXIoKSB7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnaW5wdXQnKS52YWx1ZSA9ICcnOw0KICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ291dHB1dCcpLnZhbHVlID0gJyc7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29weUJ0bicpLmRpc2FibGVkID0gdHJ1ZTsNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2lucHV0JykuYWRkRXZlbnRMaXN0ZW5lcigna2V5ZG93bicsIGZ1bmN0aW9uKGUpIHsNCiAgICAgICAgICAgIGlmIChlLmN0cmxLZXkgJiYgZS5rZXkgPT09ICdFbnRlcicpIHsNCiAgICAgICAgICAgICAgICBkZWNvZGUoKTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfSk7DQogICAgICAgIA0KICAgICAgICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcignbG9hZCcsIGZ1bmN0aW9uKCkgew0KICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2lucHV0JykuZm9jdXMoKTsNCiAgICAgICAgfSk7DQogICAgPC9zY3JpcHQ+DQo8L2JvZHk+DQo8L2h0bWw+"  
+        ];
+
+        /**
+         * 미리 인코딩된 디코더 청크들의 메타데이터
+         */
+        const DECODER_METADATA = {
+            totalChunks: DECODER_CHUNKS.length,
+            fileName: 'ghostype_decoder_v3.html',
+            description: 'GHOSTYPE Base64 Decoder v3.0',
+            estimatedSize: 'Approximately 15KB when assembled'
+        };
+
+        /**
+         * Base64 인코딩 함수
+         */
+        function encodeToBase64(text) {
+            try {
+                const startTime = performance.now();
+                const encoded = btoa(unescape(encodeURIComponent(text)));
+                const endTime = performance.now();
+                const processingTime = endTime - startTime;
+                
+                addLog(`Base64 encoded: ${text.length} → ${encoded.length} chars (${processingTime.toFixed(2)}ms)`, 'info');
+                
+                return {
+                    success: true,
+                    original: text,
+                    encoded: encoded,
+                    originalLength: text.length,
+                    encodedLength: encoded.length,
+                    expansionRatio: (encoded.length / text.length).toFixed(2),
+                    processingTime: processingTime
+                };
+                
+            } catch (error) {
+                addLog(`Base64 encoding failed: ${error.message}`, 'error');
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        /**
+         * 텍스트 미리보기 업데이트
+         */
+        function updatePreview() {
+            const originalText = document.getElementById('textInput').value;
+            const previewSection = document.getElementById('encodingPreview');
+            const previewContent = document.getElementById('previewContent');
+            const encodingStats = document.getElementById('encodingStats');
+            
+            if (!originalText.trim()) {
+                previewSection.style.display = 'none';
+                return;
+            }
+            
+            const encodingResult = encodeToBase64(originalText);
+            
+            if (!encodingResult.success) {
+                previewSection.style.display = 'none';
+                return;
+            }
+            
+            previewSection.style.display = 'block';
+            previewContent.textContent = encodingResult.encoded;
+            
+            encodingStats.innerHTML = `
+                <div class="stat-box">
+                    <strong>Original</strong><br>
+                    ${encodingResult.originalLength} chars
+                </div>
+                <div class="stat-box">
+                    <strong>Base64</strong><br>
+                    ${encodingResult.encodedLength} chars
+                </div>
+                <div class="stat-box">
+                    <strong>Expansion</strong><br>
+                    ${encodingResult.expansionRatio}x
+                </div>
+                <div class="stat-box">
+                    <strong>ASCII Safe</strong><br>
+                    ✅ 100%
+                </div>
+            `;
+        }
+
+        /**
+         * 로그 엔트리 추가
+         */
+        function addLog(message, type = 'info') {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            const time = new Date().toLocaleTimeString();
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${time}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+            
+            const entries = log.getElementsByClassName('log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+
+        /**
+         * 문자 수 업데이트
+         */
+        function updateCharCount() {
+            const text = document.getElementById('textInput').value;
+            const charCountEl = document.getElementById('charCount');
+            
+            const koreanCount = (text.match(/[가-힣ㄱ-ㅎㅏ-ㅣ]/g) || []).length;
+            const englishCount = (text.match(/[a-zA-Z]/g) || []).length;
+            const numberCount = (text.match(/[0-9]/g) || []).length;
+            const specialCount = text.length - koreanCount - englishCount - numberCount;
+            
+            charCountEl.textContent = 
+                `${text.length} characters (Korean: ${koreanCount}, English: ${englishCount}, Numbers: ${numberCount}, Special: ${specialCount})`;
+        }
+
+        /**
+         * 로그 지우기
+         */
+        function clearLog() {
+            document.getElementById('log').innerHTML = 
+                '<div class="log-entry log-info">[System] Log cleared - GHOSTYPE v3.1 Improved Base64 system</div>';
+        }
+
+        /**
+         * 텍스트 입력 지우기
+         */
+        function clearText() {
+            document.getElementById('textInput').value = '';
+            updateCharCount();
+            updatePreview();
+            addLog('Text input cleared', 'info');
+        }
+
+        /**
+         * 타이핑 속도 설정
+         */
+        function setSpeed(speed) {
+            currentTypingSpeed = speed;
+            
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                if (parseInt(btn.dataset.speed) === speed) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            const speedNames = ['Slow', 'Normal', 'Fast', 'Instant'];
+            addLog(`Typing speed changed: ${speedNames[speed]}`, 'info');
+            
+            if (isConnected) {
+                sendDataToESP32(`SPEED:${speed}`);
+            }
+        }
+
+        /**
+         * 연결 상태 업데이트
+         */
+        function updateStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status-bar ${type}`;
+        }
+
+        /**
+         * UI 요소 업데이트
+         */
+        function updateUI(connected) {
+            isConnected = connected;
+            document.getElementById('connectBtn').disabled = connected;
+            document.getElementById('disconnectBtn').disabled = !connected;
+            document.getElementById('sendBtn').disabled = !connected || isTransmitting;
+            document.getElementById('sendDecoderBtn').disabled = !connected || isTransmitting;
+            
+            const testButtons = document.querySelectorAll('.test-btn');
+            testButtons.forEach(btn => btn.disabled = !connected || isTransmitting);
+        }
+
+        /**
+         * 전송 진행률 표시
+         */
+        function showTransmissionStatus(show, progress = 0, info = '') {
+            const status = document.getElementById('transmissionStatus');
+            const fill = document.getElementById('progressFill');
+            const infoEl = document.getElementById('transmissionInfo');
+            
+            if (show) {
+                status.classList.add('active');
+                fill.style.width = `${progress}%`;
+                infoEl.textContent = info;
+            } else {
+                status.classList.remove('active');
+            }
+        }
+
+        /**
+         * ESP32 BLE 디바이스에 연결
+         */
+        async function connectDevice() {
+            try {
+                addLog('Searching for GHOSTYPE ESP32 device...', 'info');
+                updateStatus('🔍 Searching for ESP32...', 'connecting');
+
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [
+                        { namePrefix: 'GHOSTYPE' }
+                    ],
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                addLog(`Found device: ${device.name}`, 'success');
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+
+                addLog('Connecting to GATT server...', 'info');
+                server = await device.gatt.connect();
+
+                addLog('Getting Nordic UART Service...', 'info');
+                service = await server.getPrimaryService(SERVICE_UUID);
+
+                rxCharacteristic = await service.getCharacteristic(RX_CHAR_UUID);
+                txCharacteristic = await service.getCharacteristic(TX_CHAR_UUID);
+
+                await txCharacteristic.startNotifications();
+                txCharacteristic.addEventListener('characteristicvaluechanged', onDataReceived);
+
+                addLog(`${device.name} connected successfully!`, 'success');
+                updateStatus(`🟢 ${device.name} connected`, 'connected');
+                updateUI(true);
+
+                setTimeout(() => {
+                    sendDataToESP32(`SPEED:${currentTypingSpeed}`);
+                    addLog('Initial speed setting sent to ESP32', 'info');
+                }, 500);
+
+            } catch (error) {
+                addLog(`Connection failed: ${error.message}`, 'error');
+                updateStatus('🔴 Connection failed', 'disconnected');
+                console.error('Connection error:', error);
+            }
+        }
+
+        /**
+         * ESP32 연결 해제
+         */
+        async function disconnectDevice() {
+            if (device && device.gatt.connected) {
+                await device.gatt.disconnect();
+                addLog('Disconnected from ESP32', 'info');
+            }
+        }
+
+        /**
+         * ESP32로부터 데이터 수신 처리
+         */
+        function onDataReceived(event) {
+            const value = new TextDecoder().decode(event.target.value);
+            addLog(`ESP32 response: "${value}"`, 'info');
+        }
+
+        /**
+         * 연결 해제 이벤트 처리
+         */
+        function onDisconnected() {
+            addLog('ESP32 disconnected', 'error');
+            updateStatus('🔴 Not connected to ESP32', 'disconnected');
+            updateUI(false);
+            
+            device = null;
+            server = null;
+            service = null;
+            rxCharacteristic = null;
+            txCharacteristic = null;
+        }
+
+        /**
+         * ESP32로 BLE를 통해 원시 데이터 전송
+         */
+        async function sendDataToESP32(data) {
+            if (!rxCharacteristic || !isConnected) {
+                addLog('Not connected to ESP32', 'error');
+                return false;
+            }
+
+            try {
+                const encoder = new TextEncoder();
+                const packetSize = parseInt(document.getElementById('packetSize').value) || 80;
+                
+                const encodedData = encoder.encode(data);
+                const totalChunks = Math.ceil(encodedData.length / packetSize);
+                
+                addLog(`Sending to ESP32: ${data.length} chars → ${encodedData.length} bytes, ${totalChunks} packets`, 'info');
+                
+                for (let i = 0; i < encodedData.length; i += packetSize) {
+                    const chunk = encodedData.slice(i, Math.min(i + packetSize, encodedData.length));
+                    const chunkNum = Math.floor(i / packetSize) + 1;
+                    
+                    await rxCharacteristic.writeValue(chunk);
+                    
+                    const progress = Math.round((i + chunk.length) / encodedData.length * 100);
+                    showTransmissionStatus(true, progress, 
+                        `Packet ${chunkNum}/${totalChunks} transmitting...`);
+                    
+                    if (i + packetSize < encodedData.length) {
+                        await new Promise(resolve => setTimeout(resolve, 30));
+                    }
+                }
+                
+                addLog(`Transmission complete: ${totalChunks} packets sent`, 'success');
+                showTransmissionStatus(false);
+                return true;
+                
+            } catch (error) {
+                addLog(`Transmission failed: ${error.message}`, 'error');
+                showTransmissionStatus(false);
+                console.error('Send error:', error);
+                return false;
+            }
+        }
+
+        /**
+         * 전송 전 카운트다운 모달 표시
+         */
+        function showCountdown(text, seconds) {
+            return new Promise((resolve, reject) => {
+                const modal = document.getElementById('countdownModal');
+                const numberEl = document.getElementById('countdownNumber');
+                const previewEl = document.getElementById('countdownTextPreview');
+                
+                modal.style.display = 'flex';
+                const previewText = text.length > 200 ? text.substring(0, 200) + '...' : text;
+                previewEl.textContent = previewText;
+                
+                let count = seconds;
+                
+                function updateCountdown() {
+                    numberEl.textContent = count;
+                    
+                    if (count > 0) {
+                        count--;
+                        countdownTimer = setTimeout(updateCountdown, 1000);
+                    } else {
+                        modal.style.display = 'none';
+                        resolve();
+                    }
+                }
+                
+                window.cancelCountdownHandler = () => {
+                    if (countdownTimer) {
+                        clearTimeout(countdownTimer);
+                        countdownTimer = null;
+                    }
+                    modal.style.display = 'none';
+                    reject('cancelled');
+                };
+                
+                updateCountdown();
+            });
+        }
+
+        /**
+         * 카운트다운 취소
+         */
+        function cancelCountdown() {
+            if (window.cancelCountdownHandler) {
+                window.cancelCountdownHandler();
+            }
+            addLog('Transmission cancelled by user', 'info');
+        }
+
+        /**
+         * Base64 인코딩과 선택적 카운트다운으로 텍스트 전송
+         */
+        async function sendText() {
+            if (isTransmitting) {
+                addLog('Already transmitting', 'warning');
+                return;
+            }
+            
+            const originalText = document.getElementById('textInput').value;
+            
+            if (!originalText.trim()) {
+                addLog('Please enter text to send', 'error');
+                return;
+            }
+            
+            const useCountdown = document.getElementById('useCountdown').checked;
+            const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
+            
+            try {
+                isTransmitting = true;
+                updateUI(true);
+                
+                const encodingResult = encodeToBase64(originalText);
+                
+                if (!encodingResult.success) {
+                    addLog(`Base64 encoding failed: ${encodingResult.error}`, 'error');
+                    return;
+                }
+                
+                const base64Text = encodingResult.encoded;
+                
+                addLog(`Processing: "${originalText.substring(0, 50)}${originalText.length > 50 ? '...' : ''}"`, 'info');
+                addLog(`Base64 expansion: ${encodingResult.originalLength} → ${encodingResult.encodedLength} chars (${encodingResult.expansionRatio}x)`, 'info');
+                
+                if (base64Text.length > 10000) {
+                    addLog(`Large Base64 text detected: ${base64Text.length} characters`, 'warning');
+                    addLog('Auto-chunking mode activated', 'info');
+                    
+                    const chunkSize = 8000;
+                    const totalChunks = Math.ceil(base64Text.length / chunkSize);
+                    
+                    for (let i = 0; i < base64Text.length; i += chunkSize) {
+                        const chunk = base64Text.slice(i, Math.min(i + chunkSize, base64Text.length));
+                        const chunkNum = Math.floor(i / chunkSize) + 1;
+                        
+                        addLog(`Sending chunk ${chunkNum}/${totalChunks} (${chunk.length} chars)`, 'info');
+                        
+                        if (useCountdown && chunkNum === 1) {
+                            await showCountdown(`Base64 Chunk ${chunkNum}`, countdownSeconds);
+                        }
+                        
+                        const startTime = Date.now();
+                        const success = await sendDataToESP32(chunk);
+                        
+                        if (success) {
+                            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                            addLog(`Chunk ${chunkNum} completed: ${duration}s`, 'success');
+                            
+                            if (chunkNum < totalChunks) {
+                                addLog('Waiting for ESP32 processing... (2s)', 'info');
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                            }
+                        } else {
+                            addLog(`Chunk ${chunkNum} transmission failed`, 'error');
+                            break;
+                        }
+                    }
+                    
+                    addLog(`Complete transmission finished: ${originalText.length} chars → ${base64Text.length} Base64 chars`, 'success');
+                    
+                } else {
+                    if (useCountdown) {
+                        addLog(`${countdownSeconds}s countdown starting`, 'info');
+                        await showCountdown(originalText, countdownSeconds);
+                    }
+                    
+                    const startTime = Date.now();
+                    const success = await sendDataToESP32(base64Text);
+                    
+                    if (success) {
+                        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                        addLog(`Base64 text sent to PC1: ${originalText.length} chars → ${base64Text.length} Base64 chars, ${duration}s elapsed`, 'success');
+                        addLog('Use the decoder on PC1 to convert back to original text', 'info');
+                    }
+                }
+                
+            } catch (error) {
+                if (error !== 'cancelled') {
+                    addLog(`Error: ${error}`, 'error');
+                }
+            } finally {
+                isTransmitting = false;
+                updateUI(true);
+            }
+        }
+
+        /**
+         * 개선된 Base64 디코더를 PC1에 직접 전송 (디코딩된 HTML)
+         * 청크들을 디코딩해서 원본 HTML 파일 내용을 그대로 전송
+         */
+        async function sendDecoder() {
+            if (!isConnected) {
+                addLog('Please connect to ESP32 first', 'error');
+                return;
+            }
+            
+            if (isTransmitting) {
+                addLog('Already transmitting', 'warning');
+                return;
+            }
+            
+            try {
+                isTransmitting = true;
+                updateUI(true);
+                
+                addLog('Starting decoder HTML transmission...', 'info');
+                addLog(`Decoder metadata: ${DECODER_METADATA.totalChunks} chunks, ${DECODER_METADATA.fileName}`, 'info');
+                
+                const useCountdown = document.getElementById('useCountdown').checked;
+                const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
+                
+                if (useCountdown) {
+                    addLog(`${countdownSeconds}s countdown starting`, 'info');
+                    await showCountdown(`Decoder HTML: ${DECODER_METADATA.description}`, countdownSeconds);
+                }
+                
+                // 청크들을 디코딩해서 원본 HTML 재구성
+                let decodedHtml = '';
+                
+                addLog('Decoding pre-encoded chunks to original HTML...', 'info');
+                for (let i = 0; i < DECODER_CHUNKS.length; i++) {
+                    try {
+                        const decodedChunk = atob(DECODER_CHUNKS[i]);
+                        decodedHtml += decodedChunk;
+                        
+                        if ((i + 1) % 5 === 0 || i === DECODER_CHUNKS.length - 1) {
+                            addLog(`Decoded chunks ${Math.max(1, i - 3)} to ${i + 1}`, 'info');
+                        }
+                    } catch (error) {
+                        throw new Error(`Chunk ${i + 1} decoding failed: ${error.message}`);
+                    }
+                }
+                
+                addLog(`All chunks decoded: ${decodedHtml.length} characters of HTML`, 'success');
+                addLog('Sending decoded HTML directly to PC1 (ready to save as .html file)...', 'info');
+                
+                // 디코딩된 HTML을 직접 ESP32로 전송 (Base64 인코딩 하지 않음)
+                const startTime = Date.now();
+                const success = await sendDataToESP32(decodedHtml);
+                
+                if (success) {
+                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                    addLog(`Decoder HTML transmission completed! (${duration}s elapsed)`, 'success');
+                    addLog(`Next steps on PC1:`, 'info');
+                    addLog(`   1. Copy the received HTML text`, 'info');
+                    addLog(`   2. Save as '${DECODER_METADATA.fileName}'`, 'info');
+                    addLog(`   3. Open in browser to decode Base64 text`, 'info');
+                } else {
+                    throw new Error('ESP32 decoder HTML transmission failed');
+                }
+                
+            } catch (error) {
+                if (error !== 'cancelled') {
+                    addLog(`Decoder transmission error: ${error}`, 'error');
+                }
+            } finally {
+                isTransmitting = false;
+                updateUI(true);
+            }
+        }
+
+        /**
+         * 테스트 버튼용 빠른 전송
+         */
+        async function quickSend(text) {
+            if (!isConnected) {
+                addLog('Please connect to ESP32 first', 'error');
+                return;
+            }
+            
+            if (isTransmitting) {
+                addLog('Already transmitting', 'warning');
+                return;
+            }
+            
+            const useCountdown = document.getElementById('useCountdown').checked;
+            const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
+            
+            try {
+                isTransmitting = true;
+                updateUI(true);
+                
+                const encodingResult = encodeToBase64(text);
+                
+                if (!encodingResult.success) {
+                    addLog(`Quick test encoding failed: ${encodingResult.error}`, 'error');
+                    return;
+                }
+                
+                addLog(`Quick test: "${text}" → Base64 (${encodingResult.encodedLength} chars)`, 'info');
+                
+                if (useCountdown) {
+                    await showCountdown(text, countdownSeconds);
+                }
+                
+                await sendDataToESP32(encodingResult.encoded);
+                
+            } catch (error) {
+                if (error !== 'cancelled') {
+                    console.error(error);
+                }
+            } finally {
+                isTransmitting = false;
+                updateUI(true);
+            }
+        }
+
+        // 향상된 사용자 경험을 위한 이벤트 리스너
+        document.getElementById('textInput').addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                sendText();
+            }
+        });
+ 
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cancelCountdown();
+            }
+        });
+
+        // Web Bluetooth 지원 확인
+        if (!navigator.bluetooth) {
+            addLog('This browser does not support Web Bluetooth', 'error');
+            addLog('Please use Chrome or Edge browser', 'error');
+            updateStatus('🚫 Web Bluetooth not supported', 'disconnected');
+            document.getElementById('connectBtn').disabled = true;
+        } else {
+            addLog('Web Bluetooth support confirmed', 'success');
+            addLog('Simple Base64 encoding system ready', 'info');
+            addLog('Click Connect ESP32 button to start', 'info');
+        }
+
+        // UI 초기화
+        updateUI(false);
+        updateCharCount();
+        updatePreview();
+    </script>
+</body>
+</html>
