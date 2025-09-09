@@ -1,0 +1,2 @@
+# autoType
+auto type
