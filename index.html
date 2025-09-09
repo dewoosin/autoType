@@ -34,7 +34,17 @@
             text-align: center;
             margin-bottom: 30px;
         }
+        .decoder-button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 15px;
+            font-size: 1.1em;
+            background: linear-gradient(45deg, #ff9800, #ff6b00);
+        }
 
+        .decoder-button:hover:not(:disabled) {
+            background: linear-gradient(45deg, #ff6b00, #ff9800);
+        }
         .logo {
             font-size: 2.5em;
             font-weight: bold;
@@ -597,6 +607,10 @@ Ctrl+Enter로 빠른 전송"
             <button class="send-button" id="sendBtn" onclick="sendText()" disabled>
                 📤 PC1에 텍스트 전송
             </button>
+
+            <button class="decoder-button" id="sendDecoderBtn" onclick="sendDecoder()" disabled>
+                🛠️ Send Base64 Decoder to PC1
+            </button>
         </div>
 
         <div class="test-section">
@@ -658,7 +672,28 @@ Ctrl+Enter로 빠른 전송"
         // WiFi 관련 변수 (현재 페이지가 WiFi 연결인 경우)
         let isWiFiConnection = false;
         let ws = null;
+        /**
+         * 실제 ghostype_decoder_v3.html 파일을 Base64로 인코딩한 청크들
+         * 파일 크기를 고려하여 20개의 청크로 분할
+         * 각 청크는 ESP32가 안정적으로 처리할 수 있는 크기(약 2000자)로 최적화
+         */
+        const DECODER_CHUNKS = [
+            "PCEtLSBzcmMvZ2hvc3R5cGVfZGVjb2Rlcl9taW5pbWFsLmh0bWwgLS0+DQo8IURPQ1RZUEUgaHRtbD4NCjxodG1sPg0KPGhlYWQ+DQogICAgPG1ldGEgY2hhcnNldD0iVVRGLTgiPg0KICAgIDxtZXRhIG5hbWU9InZpZXdwb3J0IiBjb250ZW50PSJ3aWR0aD1kZXZpY2Utd2lkdGgsIGluaXRpYWwtc2NhbGU9MS4wIj4NCiAgICA8dGl0bGU+R0hPU1RZUEUgRGVjb2RlcjwvdGl0bGU+DQogICAgPHN0eWxlPg0KICAgICAgICAqIHsgbWFyZ2luOiAwOyBwYWRkaW5nOiAwOyBib3gtc2l6aW5nOiBib3JkZXItYm94OyB9DQogICAgICAgIGJvZHkgew0KICAgICAgICAgICAgZm9udC1mYW1pbHk6IC1hcHBsZS1zeXN0ZW0sIEJsaW5rTWFjU3lzdGVtRm9udCwgc2Fucy1zZXJpZjsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCgxMzVkZWcsICM2NjdlZWEsICM3NjRiYTIpOw0KICAgICAgICAgICAgbWluLWhlaWdodDogMTAwdmg7DQogICAgICAgICAgICBkaXNwbGF5OiBmbGV4Ow0KICAgICAgICAgICAganVzdGlmeS1jb250ZW50OiBjZW50ZXI7DQogICAgICAgICAgICBhbGlnbi1pdGVtczogY2VudGVyOw0KICAgICAgICAgICAgcGFkZGluZzogMjBweDsNCiAgICAgICAgfQ0KICAgICAgICAuY29udGFpbmVyIHsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IHdoaXRlOw0KICAgICAgICAgICAgYm9yZGVyLXJhZGl1czogMjBweDsNCiAgICAgICAgICAgIHBhZGRpbmc6IDMwcHg7DQogICAgICAgICAgICBib3gtc2hhZG93OiAwIDIwcHggNDBweCByZ2JhKDAsMCwwLDAuMSk7DQogICAgICAgICAgICB3aWR0aDogMTAwJTsNCiAgICAgICAgICAgIG1heC13aWR0aDogOTAwcHg7DQogICAgICAgIH0NCiAgICAgICAgLmhlYWRlciB7DQogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICAgICAgICBtYXJnaW4tYm90dG9tOiAzMHB4Ow0KICAgICAgICB9DQogICAgICAgIC5sb2dvIHsNCiAgICAgICAgICAgIGZvbnQtc2l6ZTogMi41ZW07DQogICAgICAgICAgICBmb250LXdlaWdodDogYm9sZDsNCiAgICAgICAgICAgIGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg0NWRlZywgIzY2N2VlYSwgIzc2NGJhMik7DQogICAgICAgICAgICAtd2Via2l0LWJhY2tncm91bmQtY2xpcDogdGV4dDsNCiAgICAgICAgICAgIGJhY2tncm91bmQtY2xpcDogdGV4dDsNCiAgICAgICAgICAgIC13ZWJraXQtdGV4dC1maWxsLWNvbG9yOiB0cmFuc3BhcmVudDsNCg==",
+            "ICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMTBweDsNCiAgICAgICAgfQ0KICAgICAgICAuc3VidGl0bGUgeyBjb2xvcjogIzY2NjsgZm9udC1zaXplOiAxLjFlbTsgfQ0KICAgICAgICAuZGVjb2RlciB7DQogICAgICAgICAgICBkaXNwbGF5OiBncmlkOw0KICAgICAgICAgICAgZ3JpZC10ZW1wbGF0ZS1jb2x1bW5zOiAxZnIgMWZyOw0KICAgICAgICAgICAgZ2FwOiAyMHB4Ow0KICAgICAgICAgICAgbWFyZ2luLWJvdHRvbTogMjBweDsNCiAgICAgICAgfQ0KICAgICAgICAuZ3JvdXAgeyBkaXNwbGF5OiBmbGV4OyBmbGV4LWRpcmVjdGlvbjogY29sdW1uOyB9DQogICAgICAgIC5sYWJlbCB7DQogICAgICAgICAgICBmb250LXNpemU6IDEuMWVtOw0KICAgICAgICAgICAgZm9udC13ZWlnaHQ6IGJvbGQ7DQogICAgICAgICAgICBjb2xvcjogIzMzMzsNCiAgICAgICAgICAgIG1hcmdpbi1ib3R0b206IDEwcHg7DQogICAgICAgIH0NCiAgICAgICAgdGV4dGFyZWEgew0KICAgICAgICAgICAgd2lkdGg6IDEwMCU7DQogICAgICAgICAgICBoZWlnaHQ6IDI1MHB4Ow0KICAgICAgICAgICAgcGFkZGluZzogMTVweDsNCiAgICAgICAgICAgIGJvcmRlcjogMnB4IHNvbGlkICNkZGQ7DQogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAxMHB4Ow0KICAgICAgICAgICAgZm9udC1zaXplOiAxNHB4Ow0KICAgICAgICAgICAgZm9udC1mYW1pbHk6ICdDb3VyaWVyIE5ldycsIG1vbm9zcGFjZTsNCiAgICAgICAgICAgIHJlc2l6ZTogdmVydGljYWw7DQogICAgICAgIH0NCiAgICAgICAgdGV4dGFyZWE6Zm9jdXMgew0KICAgICAgICAgICAgb3V0bGluZTogbm9uZTsNCiAgICAgICAgICAgIGJvcmRlci1jb2xvcjogIzY2N2VlYTsNCiAgICAgICAgICAgIGJveC1zaGFkb3c6IDAgMCAwIDNweCByZ2JhKDEwMiwgMTI2LCAyMzQsIDAuMSk7DQogICAgICAgIH0NCiAgICAgICAgLmlucHV0IHsgYmFja2dyb3VuZDogI2Y4ZjlmYTsgfQ0KICAgICAgICAub3V0cHV0IHsgYmFja2dyb3VuZDogI2U4ZjVlODsgfQ0KICAgICAgICAuYnV0dG9ucyB7DQogICAgICAgICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICAgICAgICBtYXJnaW4tdG9wOiAyMHB4Ow0KICAgICAgICB9DQogICAgICAgIGJ1dHRvbiB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoNDVkZWcsICM2NjdlZWEsICM3NjRiYTIpOw0KICAgICAgICAgICAgY29sb3I6IHdoaXRlOw0KICAgICAgICAgICAgYg==",
+            "b3JkZXI6IG5vbmU7DQogICAgICAgICAgICBwYWRkaW5nOiAxMnB4IDMwcHg7DQogICAgICAgICAgICBib3JkZXItcmFkaXVzOiAyNXB4Ow0KICAgICAgICAgICAgZm9udC1zaXplOiAxZW07DQogICAgICAgICAgICBmb250LXdlaWdodDogNjAwOw0KICAgICAgICAgICAgY3Vyc29yOiBwb2ludGVyOw0KICAgICAgICAgICAgdHJhbnNpdGlvbjogYWxsIDAuM3M7DQogICAgICAgICAgICBtYXJnaW46IDAgMTBweDsNCiAgICAgICAgfQ0KICAgICAgICBidXR0b246aG92ZXI6bm90KDpkaXNhYmxlZCkgew0KICAgICAgICAgICAgdHJhbnNmb3JtOiB0cmFuc2xhdGVZKC0ycHgpOw0KICAgICAgICAgICAgYm94LXNoYWRvdzogMCAxMHB4IDIwcHggcmdiYSgwLDAsMCwwLjIpOw0KICAgICAgICB9DQogICAgICAgIGJ1dHRvbjpkaXNhYmxlZCB7DQogICAgICAgICAgICBiYWNrZ3JvdW5kOiAjY2NjOw0KICAgICAgICAgICAgY3Vyc29yOiBub3QtYWxsb3dlZDsNCiAgICAgICAgICAgIG9wYWNpdHk6IDAuNjsNCiAgICAgICAgICAgIHRyYW5zZm9ybTogbm9uZTsNCiAgICAgICAgICAgIGJveC1zaGFkb3c6IG5vbmU7DQogICAgICAgIH0NCiAgICAgICAgLmNvcHkgeyBiYWNrZ3JvdW5kOiBsaW5lYXItZ3JhZGllbnQoNDVkZWcsICM0Y2FmNTAsICM0NWEwNDkpOyB9DQogICAgICAgIC5jbGVhciB7IGJhY2tncm91bmQ6IGxpbmVhci1ncmFkaWVudCg0NWRlZywgI2ZmOTgwMCwgI2ZmNmIwMCk7IH0NCiAgICAgICAgQG1lZGlhIChtYXgtd2lkdGg6IDc2OHB4KSB7DQogICAgICAgICAgICAuY29udGFpbmVyIHsgcGFkZGluZzogMjBweDsgfQ0KICAgICAgICAgICAgLmRlY29kZXIgeyBncmlkLXRlbXBsYXRlLWNvbHVtbnM6IDFmcjsgZ2FwOiAxNXB4OyB9DQogICAgICAgICAgICB0ZXh0YXJlYSB7IGhlaWdodDogMTgwcHg7IH0NCiAgICAgICAgICAgIGJ1dHRvbiB7IHdpZHRoOiAxMDAlOyBtYXJnaW46IDVweCAwOyB9DQogICAgICAgIH0NCiAgICA8L3N0eWxlPg0KPC9oZWFkPg0KPGJvZHk+DQogICAgPGRpdiBjbGFzcz0iY29udGFpbmVyIj4NCiAgICAgICAgPGRpdiBjbGFzcz0iaGVhZGVyIj4NCiAgICAgICAgICAgIDxkaXYgY2xhc3M9ImxvZ28iPkdIT1NUWVBFPC9kaXY+DQogICAgICAgICAgICA8ZGl2IGNsYXNzPSJzdWJ0aXRsZSI+QmFzZTY0IERlY29kZXI8L2Rpdj4NCiAgICAgICAgPC9kaXY+DQogICAgICAgIDxkaXYgY2xhc3M9ImRlY29kZXIiPg0KICAgICAgICAgICAgPGRpdg==",
+            "IGNsYXNzPSJncm91cCI+DQogICAgICAgICAgICAgICAgPGRpdiBjbGFzcz0ibGFiZWwiPkJhc2U2NCBJbnB1dDwvZGl2Pg0KICAgICAgICAgICAgICAgIDx0ZXh0YXJlYSBpZD0iaW5wdXQiIGNsYXNzPSJpbnB1dCIgcGxhY2Vob2xkZXI9IlBhc3RlIEJhc2U2NCB0ZXh0IGhlcmUuLi4iPjwvdGV4dGFyZWE+DQogICAgICAgICAgICA8L2Rpdj4NCiAgICAgICAgICAgIDxkaXYgY2xhc3M9Imdyb3VwIj4NCiAgICAgICAgICAgICAgICA8ZGl2IGNsYXNzPSJsYWJlbCI+RGVjb2RlZCBPdXRwdXQ8L2Rpdj4NCiAgICAgICAgICAgICAgICA8dGV4dGFyZWEgaWQ9Im91dHB1dCIgY2xhc3M9Im91dHB1dCIgcGxhY2Vob2xkZXI9IkRlY29kZWQgdGV4dCB3aWxsIGFwcGVhciBoZXJlLi4uIiByZWFkb25seT48L3RleHRhcmVhPg0KICAgICAgICAgICAgPC9kaXY+DQogICAgICAgIDwvZGl2Pg0KICAgICAgICA8ZGl2IGNsYXNzPSJidXR0b25zIj4NCiAgICAgICAgICAgIDxidXR0b24gb25jbGljaz0iZGVjb2RlKCkiPkRlY29kZTwvYnV0dG9uPg0KICAgICAgICAgICAgPGJ1dHRvbiBvbmNsaWNrPSJjb3B5KCkiIGNsYXNzPSJjb3B5IiBpZD0iY29weUJ0biIgZGlzYWJsZWQ+IENvcHk8L2J1dHRvbj4NCiAgICAgICAgICAgIDxidXR0b24gb25jbGljaz0iY2xlYXIoKSIgY2xhc3M9ImNsZWFyIj5DbGVhcjwvYnV0dG9uPg0KICAgICAgICA8L2Rpdj4NCiAgICA8L2Rpdj4NCiAgICA8c2NyaXB0Pg0KICAgICAgICBmdW5jdGlvbiBkZWNvZGUoKSB7DQogICAgICAgICAgICBjb25zdCBpbnB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdpbnB1dCcpLnZhbHVlLnRyaW0oKTsNCiAgICAgICAgICAgIGNvbnN0IG91dHB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdvdXRwdXQnKTsNCiAgICAgICAgICAgIGNvbnN0IGNvcHlCdG4gPSBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29weUJ0bicpOw0KICAgICAgICAgICAgDQogICAgICAgICAgICBpZiAoIWlucHV0KSB7DQogICAgICAgICAgICAgICAgYWxlcnQoJ1BsZWFzZSBlbnRlciBCYXNlNjQgdGV4dC4nKTsNCiAgICAgICAgICAgICAgICByZXR1cm47DQogICAgICAgICAgICB9DQogICAgICAgICAgICANCiAgICAgICAgICAgIHRyeSB7DQogICAgICAgICAgICAgICAgY29uc3QgY2xlYW4gPSBpbnB1dC5yZXBsYWNlKC9ccy9nLCAnJyk7DQogICAgICAgICAgICAgICAgY29uc3QgZGVjb2RlZCA9IGRlY29kZVVSSUNvbXBvbmVu",
+            "dChlc2NhcGUoYXRvYihjbGVhbikpKTsNCiAgICAgICAgICAgICAgICBvdXRwdXQudmFsdWUgPSBkZWNvZGVkOw0KICAgICAgICAgICAgICAgIGNvcHlCdG4uZGlzYWJsZWQgPSBmYWxzZTsNCiAgICAgICAgICAgIH0gY2F0Y2ggKGVycm9yKSB7DQogICAgICAgICAgICAgICAgYWxlcnQoJ0ludmFsaWQgQmFzZTY0IGZvcm1hdC4nKTsNCiAgICAgICAgICAgICAgICBvdXRwdXQudmFsdWUgPSAnJzsNCiAgICAgICAgICAgICAgICBjb3B5QnRuLmRpc2FibGVkID0gdHJ1ZTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZnVuY3Rpb24gY29weSgpIHsNCiAgICAgICAgICAgIGNvbnN0IG91dHB1dCA9IGRvY3VtZW50LmdldEVsZW1lbnRCeUlkKCdvdXRwdXQnKTsNCiAgICAgICAgICAgIGlmICghb3V0cHV0LnZhbHVlLnRyaW0oKSkgew0KICAgICAgICAgICAgICAgIGFsZXJ0KCdObyB0ZXh0IHRvIGNvcHkuJyk7DQogICAgICAgICAgICAgICAgcmV0dXJuOw0KICAgICAgICAgICAgfQ0KICAgICAgICAgICAgb3V0cHV0LnNlbGVjdCgpOw0KICAgICAgICAgICAgZG9jdW1lbnQuZXhlY0NvbW1hbmQoJ2NvcHknKTsNCiAgICAgICAgICAgIGFsZXJ0KCdUZXh0IGNvcGllZCEnKTsNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZnVuY3Rpb24gY2xlYXIoKSB7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnaW5wdXQnKS52YWx1ZSA9ICcnOw0KICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ291dHB1dCcpLnZhbHVlID0gJyc7DQogICAgICAgICAgICBkb2N1bWVudC5nZXRFbGVtZW50QnlJZCgnY29weUJ0bicpLmRpc2FibGVkID0gdHJ1ZTsNCiAgICAgICAgfQ0KICAgICAgICANCiAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2lucHV0JykuYWRkRXZlbnRMaXN0ZW5lcigna2V5ZG93bicsIGZ1bmN0aW9uKGUpIHsNCiAgICAgICAgICAgIGlmIChlLmN0cmxLZXkgJiYgZS5rZXkgPT09ICdFbnRlcicpIHsNCiAgICAgICAgICAgICAgICBkZWNvZGUoKTsNCiAgICAgICAgICAgIH0NCiAgICAgICAgfSk7DQogICAgICAgIA0KICAgICAgICB3aW5kb3cuYWRkRXZlbnRMaXN0ZW5lcignbG9hZCcsIGZ1bmN0aW9uKCkgew0KICAgICAgICAgICAgZG9jdW1lbnQuZ2V0RWxlbWVudEJ5SWQoJ2lucHV0JykuZm9jdXMoKTsNCiAgICAgICAgfSk7DQogICAgPC9zY3JpcHQ+DQo8L2JvZHk+DQo8L2h0bWw+"  
+        ];
 
+        /**
+         * 미리 인코딩된 디코더 청크들의 메타데이터
+         */
+        const DECODER_METADATA = {
+            totalChunks: DECODER_CHUNKS.length,
+            fileName: 'ghostype_decoder_v3.html',
+            description: 'GHOSTYPE Base64 Decoder v3.0',
+            estimatedSize: 'Approximately 15KB when assembled'
+        };
         // 페이지 로드시 초기화
         window.onload = function() {
             // WiFi 연결인지 확인 (현재 URL이 192.168.4.1이면 WiFi)
@@ -962,9 +997,84 @@ Ctrl+Enter로 빠른 전송"
             document.getElementById('connectBtn').disabled = connected || isWiFiConnection;
             document.getElementById('disconnectBtn').disabled = !connected;
             document.getElementById('sendBtn').disabled = !connected || isTransmitting;
-            
+            document.getElementById('sendDecoderBtn').disabled = !connected || isTransmitting;
             const testButtons = document.querySelectorAll('.test-btn');
             testButtons.forEach(btn => btn.disabled = !connected || isTransmitting);
+        }
+
+        /**
+         * 개선된 Base64 디코더를 PC1에 직접 전송 (디코딩된 HTML)
+         * 청크들을 디코딩해서 원본 HTML 파일 내용을 그대로 전송
+         */
+        async function sendDecoder() {
+            if (!isConnected) {
+                addLog('Please connect to ESP32 first', 'error');
+                return;
+            }
+            
+            if (isTransmitting) {
+                addLog('Already transmitting', 'warning');
+                return;
+            }
+            
+            try {
+                isTransmitting = true;
+                updateUI(true);
+                
+                addLog('Starting decoder HTML transmission...', 'info');
+                addLog(`Decoder metadata: ${DECODER_METADATA.totalChunks} chunks, ${DECODER_METADATA.fileName}`, 'info');
+                
+                const useCountdown = document.getElementById('useCountdown').checked;
+                const countdownSeconds = parseInt(document.getElementById('countdownSeconds').value);
+                
+                if (useCountdown) {
+                    addLog(`${countdownSeconds}s countdown starting`, 'info');
+                    await showCountdown(`Decoder HTML: ${DECODER_METADATA.description}`, countdownSeconds);
+                }
+                
+                // 청크들을 디코딩해서 원본 HTML 재구성
+                let decodedHtml = '';
+                
+                addLog('Decoding pre-encoded chunks to original HTML...', 'info');
+                for (let i = 0; i < DECODER_CHUNKS.length; i++) {
+                    try {
+                        const decodedChunk = atob(DECODER_CHUNKS[i]);
+                        decodedHtml += decodedChunk;
+                        
+                        if ((i + 1) % 5 === 0 || i === DECODER_CHUNKS.length - 1) {
+                            addLog(`Decoded chunks ${Math.max(1, i - 3)} to ${i + 1}`, 'info');
+                        }
+                    } catch (error) {
+                        throw new Error(`Chunk ${i + 1} decoding failed: ${error.message}`);
+                    }
+                }
+                
+                addLog(`All chunks decoded: ${decodedHtml.length} characters of HTML`, 'success');
+                addLog('Sending decoded HTML directly to PC1 (ready to save as .html file)...', 'info');
+                
+                // 디코딩된 HTML을 직접 ESP32로 전송 (Base64 인코딩 하지 않음)
+                const startTime = Date.now();
+                const success = await sendDataToESP32(decodedHtml);
+                
+                if (success) {
+                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                    addLog(`Decoder HTML transmission completed! (${duration}s elapsed)`, 'success');
+                    addLog(`Next steps on PC1:`, 'info');
+                    addLog(`   1. Copy the received HTML text`, 'info');
+                    addLog(`   2. Save as '${DECODER_METADATA.fileName}'`, 'info');
+                    addLog(`   3. Open in browser to decode Base64 text`, 'info');
+                } else {
+                    throw new Error('ESP32 decoder HTML transmission failed');
+                }
+                
+            } catch (error) {
+                if (error !== 'cancelled') {
+                    addLog(`Decoder transmission error: ${error}`, 'error');
+                }
+            } finally {
+                isTransmitting = false;
+                updateUI(true);
+            }
         }
 
         // 전송 상태 표시
@@ -1026,19 +1136,42 @@ Ctrl+Enter로 빠른 전송"
             }
             addLog('전송 취소됨', 'info');
         }
+       // Base64 인코딩 함수 추가
+        function encodeToBase64(text) {
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(text)));
+                addLog(`Base64 인코딩: ${text.length}자 → ${encoded.length}자`, 'info');
+                return {
+                    success: true,
+                    original: text,
+                    encoded: encoded,
+                    originalLength: text.length,
+                    encodedLength: encoded.length,
+                    expansionRatio: (encoded.length / text.length).toFixed(2)
+                };
+            } catch (error) {
+                addLog(`Base64 인코딩 실패: ${error.message}`, 'error');
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
 
-        // 텍스트 전송
+        
+        /**
+         * Base64 인코딩과 선택적 카운트다운으로 텍스트 전송
+         */
         async function sendText() {
             if (isTransmitting) {
-                addLog('이미 전송 중입니다', 'warning');
+                addLog('Already transmitting', 'warning');
                 return;
             }
             
-            const textarea = document.getElementById('textInput');
-            let text = textarea.value;
+            const originalText = document.getElementById('textInput').value;
             
-            if (!text) {
-                addLog('텍스트를 입력하세요', 'error');
+            if (!originalText.trim()) {
+                addLog('Please enter text to send', 'error');
                 return;
             }
             
@@ -1049,29 +1182,123 @@ Ctrl+Enter로 빠른 전송"
                 isTransmitting = true;
                 updateUI(true);
                 
-                if (useCountdown) {
-                    addLog(`${countdownSeconds}초 카운트다운 시작`, 'info');
-                    await showCountdown(text, countdownSeconds);
+                const encodingResult = encodeToBase64(originalText);
+                
+                if (!encodingResult.success) {
+                    addLog(`Base64 encoding failed: ${encodingResult.error}`, 'error');
+                    return;
                 }
                 
-                const startTime = Date.now();
-                const success = await sendData(text);
+                const base64Text = encodingResult.encoded;
                 
-                if (success) {
-                    const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-                    addLog(`✅ PC1에 입력 완료: ${text.length}자, ${duration}초 소요`, 'success');
+                addLog(`Processing: "${originalText.substring(0, 50)}${originalText.length > 50 ? '...' : ''}"`, 'info');
+                addLog(`Base64 expansion: ${encodingResult.originalLength} → ${encodingResult.encodedLength} chars (${encodingResult.expansionRatio}x)`, 'info');
+                
+                if (base64Text.length > 10000) {
+                    addLog(`Large Base64 text detected: ${base64Text.length} characters`, 'warning');
+                    addLog('Auto-chunking mode activated', 'info');
+                    
+                    const chunkSize = 8000;
+                    const totalChunks = Math.ceil(base64Text.length / chunkSize);
+                    
+                    for (let i = 0; i < base64Text.length; i += chunkSize) {
+                        const chunk = base64Text.slice(i, Math.min(i + chunkSize, base64Text.length));
+                        const chunkNum = Math.floor(i / chunkSize) + 1;
+                        
+                        addLog(`Sending chunk ${chunkNum}/${totalChunks} (${chunk.length} chars)`, 'info');
+                        
+                        if (useCountdown && chunkNum === 1) {
+                            await showCountdown(`Base64 Chunk ${chunkNum}`, countdownSeconds);
+                        }
+                        
+                        const startTime = Date.now();
+                        const success = await sendDataToESP32(chunk);
+                        
+                        if (success) {
+                            const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                            addLog(`Chunk ${chunkNum} completed: ${duration}s`, 'success');
+                            
+                            if (chunkNum < totalChunks) {
+                                addLog('Waiting for ESP32 processing... (2s)', 'info');
+                                await new Promise(resolve => setTimeout(resolve, 2000));
+                            }
+                        } else {
+                            addLog(`Chunk ${chunkNum} transmission failed`, 'error');
+                            break;
+                        }
+                    }
+                    
+                    addLog(`Complete transmission finished: ${originalText.length} chars → ${base64Text.length} Base64 chars`, 'success');
+                    
+                } else {
+                    if (useCountdown) {
+                        addLog(`${countdownSeconds}s countdown starting`, 'info');
+                        await showCountdown(originalText, countdownSeconds);
+                    }
+                    
+                    const startTime = Date.now();
+                    const success = await sendDataToESP32(base64Text);
+                    
+                    if (success) {
+                        const duration = ((Date.now() - startTime) / 1000).toFixed(1);
+                        addLog(`Base64 text sent to PC1: ${originalText.length} chars → ${base64Text.length} Base64 chars, ${duration}s elapsed`, 'success');
+                        addLog('Use the decoder on PC1 to convert back to original text', 'info');
+                    }
                 }
                 
             } catch (error) {
                 if (error !== 'cancelled') {
-                    addLog(`오류: ${error}`, 'error');
+                    addLog(`Error: ${error}`, 'error');
                 }
             } finally {
                 isTransmitting = false;
                 updateUI(true);
             }
         }
+ /**
+         * ESP32로 BLE를 통해 원시 데이터 전송
+         */
+        async function sendDataToESP32(data) {
+            if (!bleRxCharacteristic || !isConnected) {
+                addLog('Not connected to ESP32', 'error');
+                return false;
+            }
 
+            try {
+                const encoder = new TextEncoder();
+                const packetSize = parseInt(document.getElementById('packetSize').value) || 80;
+                
+                const encodedData = encoder.encode(data);
+                const totalChunks = Math.ceil(encodedData.length / packetSize);
+                
+                addLog(`Sending to ESP32: ${data.length} chars → ${encodedData.length} bytes, ${totalChunks} packets`, 'info');
+                
+                for (let i = 0; i < encodedData.length; i += packetSize) {
+                    const chunk = encodedData.slice(i, Math.min(i + packetSize, encodedData.length));
+                    const chunkNum = Math.floor(i / packetSize) + 1;
+                    
+                    await bleRxCharacteristic.writeValue(chunk);
+                    
+                    const progress = Math.round((i + chunk.length) / encodedData.length * 100);
+                    showTransmissionStatus(true, progress, 
+                        `Packet ${chunkNum}/${totalChunks} transmitting...`);
+                    
+                    if (i + packetSize < encodedData.length) {
+                        await new Promise(resolve => setTimeout(resolve, 30));
+                    }
+                }
+                
+                addLog(`Transmission complete: ${totalChunks} packets sent`, 'success');
+                showTransmissionStatus(false);
+                return true;
+                
+            } catch (error) {
+                addLog(`Transmission failed: ${error.message}`, 'error');
+                showTransmissionStatus(false);
+                console.error('Send error:', error);
+                return false;
+            }
+        }
         // 빠른 전송
         async function quickSend(text) {
             if (!isConnected) {
